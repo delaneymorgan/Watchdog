@@ -17,8 +17,13 @@ void signal_handler( int sig)
     }
 }
 
+void callBack(std::string& actualName, pid_t processID, pid_t threadID) {
+    std::cout << "Heartbeat died: " << actualName << " - " << processID << "/" << threadID << std::endl;
+}
+
 int main() {
     signal( SIGINT, signal_handler);
+    gWatchdog->setCallback(callBack);
     gWatchdog->monitor();
     std::cout << std::endl << "Finished!" << std::endl;
     return 0;

@@ -55,6 +55,14 @@ pid_t Heartbeat::extractProcessID( const std::string& actualName)
     return boost::lexical_cast<pid_t>(pidStr);
 }
 
+pid_t Heartbeat::extractThreadID( const std::string& actualName)
+{
+    std::vector<std::string> parts;
+    boost::split(parts, actualName, boost::is_any_of("_."));
+    std::string tidStr = parts[3];
+    return boost::lexical_cast<pid_t>(tidStr);
+}
+
 bool Heartbeat::isHeartbeat( const std::string& name)
 {
     if (boost::regex_match(name, HEARTBEAT_REGEX))

@@ -50,6 +50,10 @@ void Watchdog::monitor() {
     }
 }
 
+void Watchdog::setCallback(boost::function<void(std::string&, pid_t, pid_t)> _f) {
+    m_CallBack = _f;
+}
+
 void Watchdog::quiesce() {
     m_Running = false;
 }
@@ -82,9 +86,9 @@ void Watchdog::scanHeartbeats() {
         if (m_Heartbeats.find(actualName) != m_Heartbeats.end()) {
             // we're already managing this heartbeat
             if (!isAlive) {
-                // apparently our process has died.
-                // TODO: Notify next of kin
-                std::cout << "heartbeat died: " << actualName << std::endl;
+                // apparently our process has died. Notify next of kin
+                pid_t threadID = Heartbeat::extractThreadID( actualName);
+                m_CallBack(actualName, processID, threadID);
                 hitList.push_back(actualName);
             }
         } else if (isAlive) {

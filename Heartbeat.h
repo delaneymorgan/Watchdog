@@ -25,6 +25,7 @@ struct Heartbeat {
     static std::string makeActualName(const std::string &userName);
     static std::string extractUserName(const std::string &actualName);
     static pid_t extractProcessID(const std::string &actualName);
+    static pid_t extractThreadID(const std::string &actualName);
     static bool isHeartbeat(const std::string &name);
     static uint32_t calcCRC(const Heartbeat &heartbeat);
 };
