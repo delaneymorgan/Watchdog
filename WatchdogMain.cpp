@@ -1,45 +1,25 @@
 #include <iostream>
 #include <csignal>
+#include <boost/scoped_ptr.hpp>
 
 #include "EKG.h"
+#include "Watchdog.h"
 
-namespace {
-    bool gRunning = true;
-}
+
+boost::scoped_ptr<Watchdog> gWatchdog( new Watchdog(boost::chrono::milliseconds(1000)));
+
 
 void signal_handler( int sig)
 {
     if (sig == SIGINT)
     {
-        gRunning = false;
+        gWatchdog->quiesce();
     }
 }
 
 int main() {
     signal( SIGINT, signal_handler);
-    while (gRunning)
-    {
-        try {
-            EKG ekg( "FRED");
-            while (gRunning)
-            {
-                try {
-                    std::string alive = ekg.isAlive() ? "alive" : "dead";
-                    std::cout << "Watching " << ekg.name() << " (" << ekg.threadID() << ") - " << alive << std::endl;
-                }
-                catch (const CorruptHeartbeat& ex)
-                {
-                    std::cout << "Corrupt heartbeat detected" << std::endl;
-                }
-                sleep( 1);
-            }
-        }
-        catch (const boost::interprocess::interprocess_exception& ex)
-        {
-            std::cout << "Heartbeat " << "FRED" << " not present - retrying" << std::endl;
-            sleep(1);
-        }
-    }
+    gWatchdog->monitor();
     std::cout << std::endl << "Finished!" << std::endl;
     return 0;
 }

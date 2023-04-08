@@ -24,10 +24,10 @@ void signal_handler(int sig) {
 
 int main() {
     signal(SIGINT, signal_handler);
-    PaceMaker heartbeat("FRED", boost::chrono::milliseconds(1000));
+    PaceMaker pm("FRED", boost::chrono::milliseconds(200), boost::chrono::milliseconds(1000));
     while (gRunning) {
-        heartbeat.beat();
-        std::cout << "Beating " << heartbeat.name() << std::endl;
+        pm.beat();
+        std::cout << "Beating " << pm.userName() << " (" << pm.processID() << "/" << pm.threadID() << ")" << std::endl;
         sleep(1);
     }
     std::cout << std::endl << "Finished!" << std::endl;

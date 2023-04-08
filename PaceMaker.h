@@ -15,16 +15,23 @@
 
 class PaceMaker {
 public:
-    PaceMaker( const std::string& heartbeatName, boost::chrono::milliseconds heartbeatLimit);
+    PaceMaker(const std::string& userName, boost::chrono::milliseconds warningLimit, boost::chrono::milliseconds heartbeatLimit);
     virtual ~PaceMaker();
 
     void beat();
-    std::string name();
+    std::string userName();
+    std::string actualName();
+    pid_t processID();
+    pid_t threadID();
 private:
-    const std::string m_Name;
+    const std::string m_UserName;
+    const std::string m_ActualName;
+    boost::chrono::milliseconds m_WarningLimit;
     boost::chrono::milliseconds m_Limit;
     boost::mutex m_BeatMutex;
     boost::interprocess::mapped_region m_Region;
+    pid_t m_ProcessID;
+    pid_t m_ThreadID;
 };
 
 
