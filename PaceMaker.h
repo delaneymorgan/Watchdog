@@ -12,10 +12,14 @@
 #include <boost/thread.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
+class InvalidHeartbeatName :
+        public std::exception
+{
+};
 
 class PaceMaker {
 public:
-    PaceMaker(const std::string& userName, boost::chrono::milliseconds warningLimit, boost::chrono::milliseconds heartbeatLimit);
+    PaceMaker(const std::string& userName, boost::chrono::milliseconds normalLimit, boost::chrono::milliseconds absoluteLimit);
     virtual ~PaceMaker();
 
     void beat();
@@ -26,8 +30,8 @@ public:
 private:
     const std::string m_UserName;
     const std::string m_ActualName;
-    boost::chrono::milliseconds m_WarningLimit;
-    boost::chrono::milliseconds m_Limit;
+    boost::chrono::milliseconds m_NormalLimit;
+    boost::chrono::milliseconds m_AbsoluteLimit;
     boost::mutex m_BeatMutex;
     boost::interprocess::mapped_region m_Region;
     pid_t m_ProcessID;

@@ -15,7 +15,7 @@
 
 namespace {
     const std::string HEARTBEAT_PREFIX = "hb_";
-    const boost::regex HEARTBEAT_REGEX("^hb_[A-Z|a-z|0-9]+\\.\\d+\\.\\d+$");
+    const boost::regex HEARTBEAT_REGEX("^hb_[A-Z|a-z|0-9|-]+\\.\\d+\\.\\d+$");
 }
 
 void Heartbeat::SetCRC(Heartbeat &heartbeat) {

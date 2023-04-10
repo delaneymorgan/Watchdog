@@ -22,11 +22,13 @@ target_link_libraries(Watchdog
         ${Boost_REGEX_LIBRARY})
 
 add_executable(Thready
+        ThreadyMain.cpp
         Heartbeat.h
+        Heartbeat.cpp
         Thready.cpp
         Thready.h
-        ThreadyMain.cpp
-        PaceMaker.h Heartbeat.cpp PaceMaker.cpp)
+        PaceMaker.h
+        PaceMaker.cpp)
 
 target_link_libraries(Thready
         ${Boost_FILESYSTEM_LIBRARY}

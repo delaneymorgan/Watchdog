@@ -13,7 +13,11 @@
 
 
 namespace {
+    const unsigned int NUM_THREADS = 20;
     bool gRunning = true;
+    typedef std::vector<boost::shared_ptr<Thready> >::iterator TThreadysIterator;
+    const boost::chrono::milliseconds NORMAL_LIMIT(200);
+    const boost::chrono::milliseconds ABSOLUTE_LIMIT(1000);
 }
 
 void signal_handler(int sig) {
@@ -23,12 +27,19 @@ void signal_handler(int sig) {
 }
 
 int main() {
+    std::vector<boost::shared_ptr<Thready> > threadys;
     signal(SIGINT, signal_handler);
-    PaceMaker pm("FRED", boost::chrono::milliseconds(200), boost::chrono::milliseconds(1000));
+    for (int threadNo = 0; threadNo < NUM_THREADS; threadNo++) {
+        boost::shared_ptr<Thready> newThready( new Thready(threadNo,NORMAL_LIMIT,ABSOLUTE_LIMIT));
+        boost::thread* thr = new boost::thread(boost::bind(&Thready::run, newThready));
+        threadys.push_back(newThready);
+    }
     while (gRunning) {
-        pm.beat();
-        std::cout << "Beating " << pm.userName() << " (" << pm.processID() << "/" << pm.threadID() << ")" << std::endl;
+        std::cout << "Idle loop" << std::endl;
         sleep(1);
+    }
+    for (TThreadysIterator it = threadys.begin(); it != threadys.end(); it++) {
+        (*it)->quiesce();
     }
     std::cout << std::endl << "Finished!" << std::endl;
 }
