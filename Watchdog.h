@@ -12,14 +12,15 @@
 #include <boost/chrono.hpp>
 #include <boost/function.hpp>
 
+#include "Heartbeat.h"
 #include "EKG.h"
 
 class Watchdog {
 public:
-    Watchdog( boost::chrono::milliseconds scanPeriod);
+    Watchdog( boost::chrono::milliseconds scanPeriod, bool verbose=false);      // TODO: option to scale to shortest heartbeat?
     virtual ~Watchdog();
 
-    void setCallback(boost::function<void(std::string&, pid_t, pid_t)>);
+    void setCallback(boost::function<void(std::string&, pid_t, pid_t, HeartbeatState)>);
     void monitor();
     void quiesce();
 private:
@@ -27,8 +28,9 @@ private:
 
     std::map<std::string, boost::shared_ptr<EKG> > m_Heartbeats;
     bool m_Running;
+    bool m_Verbose;
     boost::chrono::milliseconds m_ScanPeriod;
-    boost::function<void(std::string, pid_t, pid_t)> m_CallBack;
+    boost::function<void(std::string, pid_t, pid_t, HeartbeatState)> m_CallBack;
 };
 
 

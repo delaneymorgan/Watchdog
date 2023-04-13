@@ -6,7 +6,7 @@
 #include "Watchdog.h"
 
 
-boost::scoped_ptr<Watchdog> gWatchdog( new Watchdog(boost::chrono::milliseconds(1000)));
+boost::scoped_ptr<Watchdog> gWatchdog( new Watchdog(boost::chrono::milliseconds(1000), true));
 
 
 void signal_handler( int sig)
@@ -17,8 +17,17 @@ void signal_handler( int sig)
     }
 }
 
-void callBack(std::string& actualName, pid_t processID, pid_t threadID) {
-    std::cout << "Heartbeat died: " << actualName << " - " << processID << "/" << threadID << std::endl;
+void callBack(std::string& actualName, pid_t processID, pid_t threadID, HeartbeatState state) {
+    switch (state) {
+        case Abnormal_HeartbeatState:
+            std::cout << "Heartbeat abnormal: " << actualName << " - " << processID << "/" << threadID << std::endl;
+            break;
+        case Fatal_HeartbeatState:
+            std::cout << "Heartbeat fatal: " << actualName << " - " << processID << "/" << threadID << std::endl;
+            break;
+        default:
+            break;
+    }
 }
 
 int main() {

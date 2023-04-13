@@ -17,7 +17,6 @@ Thready::Thready(unsigned int id, boost::chrono::milliseconds normalLimit, boost
     std::stringstream oss;
     oss << QUOTE(Thready) << "-" << id;
     m_Name = oss.str();
-    m_PaceMaker = boost::shared_ptr<PaceMaker>( new PaceMaker(m_Name, normalLimit, absoluteLimit));
 }
 
 Thready::~Thready() {
@@ -25,12 +24,18 @@ Thready::~Thready() {
 }
 
 void Thready::run() {
+    // creat pacemaker here to get thread id
+    m_PaceMaker = boost::shared_ptr<PaceMaker>( new PaceMaker(m_Name, m_NormalLimit, m_AbsoluteLimit));
     while (m_Running) {
         m_PaceMaker->beat();
         std::stringstream oss;
         oss << m_Name << " beating" << std::endl;
         std::cout << oss.str();
-        boost::chrono::milliseconds sleepTime = m_NormalLimit;      // make irregular beat
+        boost::chrono::milliseconds sleepTime = m_NormalLimit;
+        long meanTime = (m_NormalLimit.count() + m_AbsoluteLimit.count()) / 2.0;
+        long variance = (m_AbsoluteLimit.count() - m_NormalLimit.count()) / 2.0 * 1.2;
+        // TODO: need random sleep between meantime-variance to meantime+variance
+        // TODO: make irregular beat
         boost::this_thread::sleep_for(sleepTime);
     }
 }

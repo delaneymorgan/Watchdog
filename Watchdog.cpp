@@ -21,8 +21,9 @@ namespace {
 }
 
 
-Watchdog::Watchdog(boost::chrono::milliseconds scanPeriod) :
+Watchdog::Watchdog(boost::chrono::milliseconds scanPeriod, bool verbose) :
         m_Running(true),
+        m_Verbose(verbose),
         m_ScanPeriod(scanPeriod) {
 }
 
@@ -37,20 +38,31 @@ void Watchdog::monitor() {
             try {
                 std::string isAlive = ekg->isAlive() ? "alive" : "dead";
                 std::string isNormal = ekg->isNormal() ? "normal" : "warning";
-                std::cout << "Heartbeat " << ekg->actualName() << " - " << isAlive << "-" << isNormal << std::endl;
+                if (!ekg->isAlive()) {
+                    m_CallBack(ekg->actualName(), ekg->processID(), ekg->threadID(), Fatal_HeartbeatState);
+                } else if (!ekg->isAlive()) {
+                    m_CallBack(ekg->actualName(), ekg->processID(), ekg->threadID(), Abnormal_HeartbeatState);
+                }
+                if (m_Verbose) {
+                    std::cout << "Heartbeat " << ekg->actualName() << " - " << isAlive << "-" << isNormal << std::endl;
+                }
             }
             catch (CorruptHeartbeat &ex) {
-                std::cout << "Heartbeat " << ekg->actualName() << " - corrupt" << std::endl;
+                if (m_Verbose) {
+                    std::cout << "Heartbeat " << ekg->actualName() << " - corrupt" << std::endl;
+                }
             }
             catch (const boost::interprocess::interprocess_exception &ex) {
-                std::cout << "Heartbeat " << ekg->actualName() << " not present - retrying" << std::endl;
+                if (m_Verbose) {
+                    std::cout << "Heartbeat " << ekg->actualName() << " not present - retrying" << std::endl;
+                }
             }
         }
         boost::this_thread::sleep_for(m_ScanPeriod);
     }
 }
 
-void Watchdog::setCallback(boost::function<void(std::string&, pid_t, pid_t)> _f) {
+void Watchdog::setCallback(boost::function<void(std::string&, pid_t, pid_t, HeartbeatState)> _f) {
     m_CallBack = _f;
 }
 
@@ -88,7 +100,7 @@ void Watchdog::scanHeartbeats() {
             if (!isAlive) {
                 // apparently our process has died. Notify next of kin
                 pid_t threadID = Heartbeat::extractThreadID( actualName);
-                m_CallBack(actualName, processID, threadID);
+                m_CallBack(actualName, processID, threadID, Fatal_HeartbeatState);
                 hitList.push_back(actualName);
             }
         } else if (isAlive) {

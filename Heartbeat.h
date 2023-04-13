@@ -8,6 +8,11 @@
 #include <boost/chrono.hpp>
 
 
+enum HeartbeatState {
+    Abnormal_HeartbeatState,
+    Fatal_HeartbeatState
+};
+
 struct Heartbeat {
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;

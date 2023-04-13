@@ -16,7 +16,7 @@ namespace {
     const unsigned int NUM_THREADS = 20;
     bool gRunning = true;
     typedef std::vector<boost::shared_ptr<Thready> >::iterator TThreadysIterator;
-    const boost::chrono::milliseconds NORMAL_LIMIT(200);
+    const boost::chrono::milliseconds NORMAL_LIMIT(500);
     const boost::chrono::milliseconds ABSOLUTE_LIMIT(1000);
 }
 
