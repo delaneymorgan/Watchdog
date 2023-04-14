@@ -5,6 +5,7 @@
 #ifndef WATCHDOG_THREADY_H
 #define WATCHDOG_THREADY_H
 
+
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -13,7 +14,7 @@
 
 class Thready {
 public:
-    Thready(unsigned int id, boost::chrono::milliseconds normalLimit, boost::chrono::milliseconds absoluteLimit);
+    Thready( unsigned int id, boost::chrono::milliseconds normalLimit, boost::chrono::milliseconds absoluteLimit );
     virtual ~Thready();
     void run();
     void quiesce();

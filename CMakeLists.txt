@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 project(Watchdog)
 
-find_package(Boost COMPONENTS system filesystem thread chrono regex REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread chrono regex program_options REQUIRED)
 
 set(CMAKE_CXX_STANDARD 98)
 
@@ -19,7 +19,8 @@ target_link_libraries(Watchdog
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_CHRONO_LIBRARY}
         ${Boost_THREAD_LIBRARY}
-        ${Boost_REGEX_LIBRARY})
+        ${Boost_REGEX_LIBRARY}
+        ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 add_executable(Thready
         ThreadyMain.cpp
@@ -35,5 +36,6 @@ target_link_libraries(Thready
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_CHRONO_LIBRARY}
         ${Boost_THREAD_LIBRARY}
-        ${Boost_REGEX_LIBRARY})
+        ${Boost_REGEX_LIBRARY}
+        ${Boost_PROGRAM_OPTIONS_LIBRARY})
 

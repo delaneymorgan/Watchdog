@@ -24,15 +24,13 @@ void Heartbeat::SetCRC(Heartbeat &heartbeat) {
 
 bool Heartbeat::isCRCOK(const Heartbeat &heartbeat) {
     uint32_t calcCRC = Heartbeat::calcCRC(heartbeat);
-    if (heartbeat.m_CRC == calcCRC)
-    {
+    if (heartbeat.m_CRC == calcCRC) {
         return true;
     }
     return false;
 }
 
-std::string Heartbeat::makeActualName(const std::string& userName)
-{
+std::string Heartbeat::makeActualName(const std::string &userName) {
     std::stringstream oss;
     pid_t processID = getpid();
     pid_t threadID = gettid();
@@ -40,33 +38,28 @@ std::string Heartbeat::makeActualName(const std::string& userName)
     return oss.str();
 }
 
-std::string Heartbeat::extractUserName( const std::string& actualName)
-{
+std::string Heartbeat::extractUserName(const std::string &actualName) {
     std::vector<std::string> parts;
     boost::split(parts, actualName, boost::is_any_of("_."));
     return parts[1];
 }
 
-pid_t Heartbeat::extractProcessID( const std::string& actualName)
-{
+pid_t Heartbeat::extractProcessID(const std::string &actualName) {
     std::vector<std::string> parts;
     boost::split(parts, actualName, boost::is_any_of("_."));
     std::string pidStr = parts[2];
     return boost::lexical_cast<pid_t>(pidStr);
 }
 
-pid_t Heartbeat::extractThreadID( const std::string& actualName)
-{
+pid_t Heartbeat::extractThreadID(const std::string &actualName) {
     std::vector<std::string> parts;
     boost::split(parts, actualName, boost::is_any_of("_."));
     std::string tidStr = parts[3];
     return boost::lexical_cast<pid_t>(tidStr);
 }
 
-bool Heartbeat::isHeartbeat( const std::string& name)
-{
-    if (boost::regex_match(name, HEARTBEAT_REGEX))
-    {
+bool Heartbeat::isHeartbeat(const std::string &name) {
+    if (boost::regex_match(name, HEARTBEAT_REGEX)) {
         return true;
     }
     return false;
@@ -74,8 +67,8 @@ bool Heartbeat::isHeartbeat( const std::string& name)
 
 uint32_t Heartbeat::calcCRC(const Heartbeat &heartbeat) {
     boost::crc_32_type crc;
-    crc.process_bytes( &heartbeat.m_Beat, sizeof( heartbeat.m_Beat));
-    crc.process_bytes(&heartbeat.m_AbsoluteLimit, sizeof( heartbeat.m_AbsoluteLimit));
-    crc.process_bytes(&heartbeat.m_NormalLimit, sizeof( heartbeat.m_NormalLimit));
+    crc.process_bytes(&heartbeat.m_Beat, sizeof(heartbeat.m_Beat));
+    crc.process_bytes(&heartbeat.m_AbsoluteLimit, sizeof(heartbeat.m_AbsoluteLimit));
+    crc.process_bytes(&heartbeat.m_NormalLimit, sizeof(heartbeat.m_NormalLimit));
     return crc.checksum();
 }

@@ -5,6 +5,7 @@
 #ifndef WATCHDOG_EKG_H
 #define WATCHDOG_EKG_H
 
+
 #include <exception>
 #include <string>
 
@@ -13,21 +14,22 @@
 
 
 class CorruptHeartbeat :
-public std::exception
-{
+        public std::exception {
 };
+
 
 class EKG {
 public:
-    explicit EKG( const std::string& actualName);
+    explicit EKG( const std::string &actualName );
     virtual ~EKG();
 
     bool isAlive();
     bool isNormal();
+    boost::chrono::milliseconds length();
     std::string userName();
     std::string actualName();
-    pid_t processID();
-    pid_t threadID();
+    pid_t processID() const;
+    pid_t threadID() const;
 
 private:
     const std::string m_ActualName;
