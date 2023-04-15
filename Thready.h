@@ -14,13 +14,15 @@
 
 class Thready {
 public:
-    Thready( unsigned int id, boost::chrono::milliseconds normalLimit, boost::chrono::milliseconds absoluteLimit );
+    Thready( unsigned int id, boost::chrono::milliseconds normalLimit, boost::chrono::milliseconds absoluteLimit, bool tamper, bool verbose);
     virtual ~Thready();
     void run();
     void quiesce();
 private:
     std::string m_Name;
     bool m_Running;
+    bool m_Tamper;
+    bool m_Verbose;
     boost::shared_ptr<PaceMaker> m_PaceMaker;
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;

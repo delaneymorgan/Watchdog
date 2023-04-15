@@ -15,7 +15,6 @@
 
 
 namespace {
-    const unsigned int NUM_THREADS = 20;
     bool gRunning = true;
     typedef std::vector<boost::shared_ptr<Thready> >::iterator TThreadysIterator;
     const boost::chrono::milliseconds NORMAL_LIMIT( 500 );
@@ -37,6 +36,7 @@ namespace postyle = boost::program_options::command_line_style;
 po::variables_map Usage( int argc, char *argv[], const std::string &error = "" ) {
     po::options_description desc( "Options" );
     desc.add_options()
+            ( "num,n", po::value<unsigned int>()->default_value(20), "The #threads" )
             ( "tamper,t", "Tamper with heartbeats" )
             ( "verbose,v", "Verbose mode" )
             ( "help,?", "Print this help message" );
@@ -61,13 +61,16 @@ int main( int argc, char *argv[] ) {
     signal( SIGINT, signal_handler );
     po::variables_map args = Usage( argc, argv );
     std::vector<boost::shared_ptr<Thready> > threadys;
-    for ( int threadNo = 0; threadNo < NUM_THREADS; threadNo++ ) {
-        boost::shared_ptr<Thready> newThready( new Thready( threadNo, NORMAL_LIMIT, ABSOLUTE_LIMIT ));
+    unsigned int numThreads = args["num"].as<unsigned int>();
+    for ( int threadNo = 0; threadNo < numThreads; threadNo++ ) {
+        boost::shared_ptr<Thready> newThready( new Thready( threadNo, NORMAL_LIMIT, ABSOLUTE_LIMIT, args.count("tamper"), args.count("verbose") ));
         boost::thread *thr = new boost::thread( boost::bind( &Thready::run, newThready ));
         threadys.push_back( newThready );
     }
     while ( gRunning ) {
-        std::cout << "Idle loop" << std::endl;
+        if (args.count("verbose")) {
+            std::cout << "Idle loop" << std::endl;
+        }
         sleep( 1 );
     }
     for ( TThreadysIterator it = threadys.begin(); it != threadys.end(); it++ ) {

@@ -23,8 +23,7 @@ public:
               bool verbose = false );      // TODO: option to scale to shortest heartbeat?
     virtual ~Watchdog();
 
-    void
-    setCallback( boost::function<void( std::string &, pid_t, pid_t, HeartbeatState, boost::chrono::milliseconds )> );
+    void setCallback( boost::function<void( std::string &, pid_t, pid_t, HeartbeatState, boost::chrono::milliseconds, bool )>);
     void monitor();
     void quiesce();
 private:
@@ -35,7 +34,7 @@ private:
     bool m_AutoScan;
     bool m_Verbose;
     boost::chrono::milliseconds m_ScanPeriod;
-    boost::function<void( std::string, pid_t, pid_t, HeartbeatState, boost::chrono::milliseconds )> m_CallBack;
+    boost::function<void( std::string, pid_t, pid_t, HeartbeatState, boost::chrono::milliseconds, bool )> m_CallBack;
 };
 
 

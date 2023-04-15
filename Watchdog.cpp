@@ -44,10 +44,10 @@ void Watchdog::monitor() {
                 std::string isNormal = ekg->isNormal() ? "normal" : "warning";
                 if ( !ekg->isAlive()) {
                     m_CallBack( ekg->actualName(), ekg->processID(), ekg->threadID(), Fatal_HeartbeatState,
-                                ekg->length());
+                                ekg->length(), m_Verbose);
                 } else if ( !ekg->isAlive()) {
                     m_CallBack( ekg->actualName(), ekg->processID(), ekg->threadID(), Abnormal_HeartbeatState,
-                                ekg->length());
+                                ekg->length(), m_Verbose);
                 }
                 if ( m_Verbose ) {
                     std::cout << "Heartbeat " << ekg->actualName() << " - " << isAlive << "-" << isNormal << std::endl;
@@ -70,7 +70,7 @@ void Watchdog::monitor() {
 
 
 void Watchdog::setCallback( boost::function<void( std::string &, pid_t, pid_t, HeartbeatState,
-                                                  boost::chrono::milliseconds )> _f ) {
+                                                  boost::chrono::milliseconds, bool )> _f ) {
     m_CallBack = _f;
 }
 
@@ -100,42 +100,35 @@ void Watchdog::scanHeartbeats() {
     }
 
     // compare candidates against our managed EKGs
-    std::vector<std::string> hitList;
+    boost::container::flat_set<std::string> deadPIDs;
     for ( boost::container::flat_set<std::string>::iterator it = candidateHBs.begin();
           it != candidateHBs.end(); it++ ) {
         std::string actualName = *it;
         pid_t processID = Heartbeat::extractProcessID( actualName );
         bool isAlive = (kill( processID, 0 ) == 0);
-        if ( m_Heartbeats.find( actualName ) != m_Heartbeats.end()) {
-            // we're already managing this heartbeat
-            if ( !isAlive ) {
-                // apparently our process has died. Notify next of kin
-                pid_t threadID = Heartbeat::extractThreadID( actualName );
-                m_CallBack( actualName, processID, threadID, Fatal_HeartbeatState, boost::chrono::milliseconds( 0 ));
-                hitList.push_back( actualName );
-            }
-        } else if ( isAlive ) {
+        if ( isAlive ) {
             // this is a new heartbeat and the process behind it exists - start managing it
             boost::shared_ptr<EKG> ekg( new EKG( actualName ));
             m_Heartbeats[actualName] = ekg;
         } else {
-            // Whatever it was, it's dead now - delete it
+            // apparently our process has died. Mark it for next of kin notification
+            deadPIDs.insert( actualName );
+        }
+    }
+
+    // do next of kin notification
+    // NOTE: only do it once per pid, not for each thread in the process
+    for ( boost::container::flat_set<std::string>::iterator it = deadPIDs.begin(); it != deadPIDs.end(); it++ ) {
+        std::string actualName = *it;
+        if ( m_Heartbeats.find( actualName ) != m_Heartbeats.end()) {
+            // we were already managing this heartbeat - notify next of kin and remove it from our list
+            pid_t processID = Heartbeat::extractProcessID( actualName );
+            m_CallBack( actualName, processID, 0, Fatal_HeartbeatState, boost::chrono::milliseconds( 0 ), m_Verbose);
+            m_Heartbeats.erase(actualName);
+        } else {
+            // Not known to us.  Whatever it was, it's dead now - delete the remnant heartbeat
             std::string path = HEARTBEATS_DIR + actualName;
             boost::filesystem::remove( path );
         }
-    }
-
-    // check for superfluous heartbeat management
-    for ( THeartbeatIterator it = m_Heartbeats.begin(); it != m_Heartbeats.end(); it++ ) {
-        if ( !candidateHBs.contains( it->first )) {
-            // heartbeat no longer exists
-            // TODO: not sure how this ever happens
-            hitList.push_back( it->first );
-        }
-    }
-
-    // take out any obsolete heartbeats
-    for ( std::vector<std::string>::iterator it = hitList.begin(); it != hitList.end(); it++ ) {
-        m_Heartbeats.erase( *it );
     }
 }

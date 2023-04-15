@@ -18,7 +18,7 @@ void signal_handler( int sig ) {
 
 
 void callBack( std::string &actualName, pid_t processID, pid_t threadID, HeartbeatState state,
-               boost::chrono::milliseconds hbLength ) {
+               boost::chrono::milliseconds hbLength, bool verbose ) {
     std::string stateName;
     switch ( state ) {
         case Abnormal_HeartbeatState:
@@ -30,11 +30,13 @@ void callBack( std::string &actualName, pid_t processID, pid_t threadID, Heartbe
         default:
             break;
     }
-    if ( hbLength.count() == 0 ) {
-        std::cout << "Process died: " << actualName << " - " << processID << std::endl;
-    } else {
-        std::cout << "Heartbeat " << stateName << ": " << actualName << " - " << processID << "/" <<
-                  threadID << " = " << hbLength.count() << " msec" << std::endl;
+    if (verbose) {
+        if ( hbLength.count() == 0 ) {
+            std::cout << "Process died: " << actualName << " - " << processID << std::endl;
+        } else {
+            std::cout << "Heartbeat " << stateName << ": " << actualName << " - " << processID << "/" <<
+                      threadID << " = " << hbLength.count() << " msec" << std::endl;
+        }
     }
 }
 
