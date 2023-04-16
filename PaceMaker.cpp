@@ -7,6 +7,8 @@
 #include <stdexcept>
 
 #include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/chrono/duration.hpp>
+#include <boost/chrono/chrono.hpp>
 
 #include "Heartbeat.h"
 
@@ -14,10 +16,12 @@
 using namespace boost::interprocess;
 
 
-PaceMaker::PaceMaker( const std::string &userName, boost::chrono::milliseconds normalLimit,
-                      boost::chrono::milliseconds absoluteLimit ) :
-        m_UserName( userName ),
-        m_ActualName( Heartbeat::makeActualName( userName )),
+PaceMaker::PaceMaker(const std::string &procName, const std::string &threadName,
+                     boost::chrono::milliseconds normalLimit,
+                     boost::chrono::milliseconds absoluteLimit) :
+        m_ProcName(procName ),
+        m_ThreadName(threadName),
+        m_ActualName(Heartbeat::makeActualName(procName, threadName)),
         m_NormalLimit( normalLimit ),
         m_AbsoluteLimit( absoluteLimit ),
         m_ProcessID( getpid()),
@@ -37,8 +41,7 @@ PaceMaker::PaceMaker( const std::string &userName, boost::chrono::milliseconds n
 
 
 PaceMaker::~PaceMaker() {
-    // don't release shared memory because another process could be using it
-    // TODO: OR NOT?
+    // don't release shared memory - that's the watchdog's job
 }
 
 
@@ -53,21 +56,3 @@ void PaceMaker::beat() {
 }
 
 
-std::string PaceMaker::userName() {
-    return m_UserName;
-}
-
-
-std::string PaceMaker::actualName() {
-    return m_ActualName;
-}
-
-
-pid_t PaceMaker::processID() const {
-    return m_ProcessID;
-}
-
-
-pid_t PaceMaker::threadID() const {
-    return m_ThreadID;
-}

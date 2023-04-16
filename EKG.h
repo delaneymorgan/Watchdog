@@ -26,8 +26,9 @@ public:
     bool isAlive();
     bool isNormal();
     boost::chrono::milliseconds length();
-    std::string userName();
+
     std::string actualName();
+    boost::chrono::milliseconds normalLimit();
     pid_t processID() const;
     pid_t threadID() const;
 

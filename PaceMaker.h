@@ -11,6 +11,8 @@
 #include <boost/chrono.hpp>
 #include <boost/thread.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#include <boost/chrono/duration.hpp>
+#include <boost/chrono/chrono.hpp>
 
 
 class InvalidHeartbeatName :
@@ -20,17 +22,15 @@ class InvalidHeartbeatName :
 
 class PaceMaker {
 public:
-    PaceMaker( const std::string &userName, boost::chrono::milliseconds normalLimit,
-               boost::chrono::milliseconds absoluteLimit );
+    PaceMaker(const std::string &procName, const std::string &threadName, boost::chrono::milliseconds normalLimit,
+              boost::chrono::milliseconds absoluteLimit);
     virtual ~PaceMaker();
 
     void beat();
-    std::string userName();
-    std::string actualName();
-    pid_t processID() const;
-    pid_t threadID() const;
+
 private:
-    const std::string m_UserName;
+    const std::string m_ProcName;
+    const std::string m_ThreadName;
     const std::string m_ActualName;
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;

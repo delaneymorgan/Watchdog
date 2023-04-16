@@ -64,14 +64,15 @@ bool EKG::isNormal() {
 }
 
 
-std::string EKG::userName() {
-
-    return m_UserName;
+std::string EKG::actualName() {
+    return m_ActualName;
 }
 
 
-std::string EKG::actualName() {
-    return m_ActualName;
+boost::chrono::milliseconds EKG::normalLimit() {
+    Heartbeat beat;
+    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    return beat.m_NormalLimit;
 }
 
 

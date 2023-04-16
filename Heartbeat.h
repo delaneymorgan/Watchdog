@@ -9,9 +9,10 @@
 #include <boost/chrono.hpp>
 
 
-enum HeartbeatState {
-    Abnormal_HeartbeatState,
-    Fatal_HeartbeatState
+enum HeartbeatEvent {
+    Started_HeartbeatEvent,
+    Abnormal_HeartbeatEvent,
+    Fatal_HeartbeatEvent
 };
 
 
@@ -31,12 +32,16 @@ struct Heartbeat {
 
     static void SetCRC( Heartbeat &heartbeat );
     static bool isCRCOK( const Heartbeat &heartbeat );
-    static std::string makeActualName( const std::string &userName );
+    static std::string makeActualName(const std::string &procName, const std::string &threadName);
     static std::string extractUserName( const std::string &actualName );
+    static std::string extractProcName( const std::string &actualName );
+    static std::string extractThreadName( const std::string &actualName );
     static pid_t extractProcessID( const std::string &actualName );
     static pid_t extractThreadID( const std::string &actualName );
     static bool isHeartbeat( const std::string &name );
     static uint32_t calcCRC( const Heartbeat &heartbeat );
+
+    static std::string heartbeatEventName(const HeartbeatEvent event);
 };
 
 
