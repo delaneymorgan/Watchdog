@@ -65,7 +65,7 @@ int main( int argc, char *argv[] ) {
     for ( int threadNo = 0; threadNo < numThreads; threadNo++ ) {
         boost::shared_ptr<Thready> newThready(new Thready("ThreadyMain", threadNo, NORMAL_LIMIT, ABSOLUTE_LIMIT,
                                                           args.count("tamper"), args.count("verbose")));
-        boost::thread *thr = new boost::thread( boost::bind( &Thready::run, newThready ));
+        __attribute__((unused)) boost::thread *thr = new boost::thread( boost::bind( &Thready::run, newThready ));
         threadys.push_back( newThready );
     }
     while ( gRunning ) {

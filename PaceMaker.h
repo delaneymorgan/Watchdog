@@ -36,8 +36,6 @@ private:
     boost::chrono::milliseconds m_AbsoluteLimit;
     boost::mutex m_BeatMutex;
     boost::interprocess::mapped_region m_Region;
-    pid_t m_ProcessID;
-    pid_t m_ThreadID;
 };
 
 

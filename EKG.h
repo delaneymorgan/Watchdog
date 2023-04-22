@@ -40,5 +40,4 @@ private:
     boost::interprocess::mapped_region m_Region;
 };
 
-
 #endif //WATCHDOG_EKG_H

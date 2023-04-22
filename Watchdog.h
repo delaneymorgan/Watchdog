@@ -15,21 +15,29 @@
 
 #include "Heartbeat.h"
 #include "EKG.h"
+#include "IWatchdogPolicy.h"
+
+
+class IWatchdogPolicy;
 
 
 class Watchdog {
 public:
-    Watchdog( boost::chrono::milliseconds scanPeriod, bool autoScan = false,
-              bool verbose = false );      // TODO: option to scale to shortest heartbeat?
+    Watchdog( boost::chrono::milliseconds scanPeriod, bool autoScan = false, bool verbose = false );
     virtual ~Watchdog();
 
-    void setCallback( boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent, boost::chrono::milliseconds, bool )>);
+    void setCallback( const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent, boost::chrono::milliseconds, bool )>&);
+    void setPolicy( const boost::shared_ptr<IWatchdogPolicy>& policy);
     void monitor();
     void quiesce();
 private:
     void scanHeartbeats();
+    void doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
+                     boost::chrono::milliseconds hbLength);
+    void doCallbacks(const boost::shared_ptr<EKG>& ekg, HeartbeatEvent event);
 
     std::map<std::string, boost::shared_ptr<EKG> > m_Heartbeats;
+    std::map<std::string, boost::shared_ptr<IWatchdogPolicy> > m_Policies;
     bool m_Running;
     bool m_AutoScan;
     bool m_Verbose;

@@ -20,8 +20,9 @@ namespace {
     const boost::regex HEARTBEAT_REGEX("^hb_[A-Z|a-z|0-9|-]+\\:[A-Z|a-z|0-9|-]+\\.\\d+\\.\\d+$");
     std::map<HeartbeatEvent, std::string> HEARTBEATEVENT_TO_STRING = boost::assign::map_list_of
             (Started_HeartbeatEvent, "Started")
-            (Abnormal_HeartbeatEvent, "Abnormal")
-            (Fatal_HeartbeatEvent, "Fatal");
+            (Slow_HeartbeatEvent, "Slow")
+            (Hung_HeartbeatEvent, "Hung")
+            (Dead_HeartbeatEvent, "Dead");
 }
 
 void Heartbeat::SetCRC(Heartbeat &heartbeat) {

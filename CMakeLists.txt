@@ -12,7 +12,7 @@ add_executable(Watchdog
         EKG.cpp
         EKG.h
         Heartbeat.h
-        Heartbeat.cpp)
+        Heartbeat.cpp IWatchdogPolicy.cpp IWatchdogPolicy.h ThreadyWatchdogPolicy.cpp ThreadyWatchdogPolicy.h)
 
 target_link_libraries(Watchdog
         ${Boost_FILESYSTEM_LIBRARY}

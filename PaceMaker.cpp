@@ -23,9 +23,7 @@ PaceMaker::PaceMaker(const std::string &procName, const std::string &threadName,
         m_ThreadName(threadName),
         m_ActualName(Heartbeat::makeActualName(procName, threadName)),
         m_NormalLimit( normalLimit ),
-        m_AbsoluteLimit( absoluteLimit ),
-        m_ProcessID( getpid()),
-        m_ThreadID( gettid()) {
+        m_AbsoluteLimit( absoluteLimit ) {
     if ( !Heartbeat::isHeartbeat( m_ActualName )) {
         throw InvalidHeartbeatName();
     }

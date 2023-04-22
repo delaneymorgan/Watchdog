@@ -28,7 +28,7 @@ namespace {
         std::string m_ActualName;
 
         TProcInfo() :
-                m_ProcID(0),
+                m_ProcID(),
                 m_ActualName() {
         }
     };
@@ -48,6 +48,21 @@ Watchdog::~Watchdog() {
 }
 
 
+void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
+                           boost::chrono::milliseconds hbLength) {
+    std::string procName = Heartbeat::extractProcName(actualName);
+    m_CallBack(actualName, processID, threadID, event, hbLength, m_Verbose);
+    std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(procName);
+    if (policy != m_Policies.end()) {
+        (*policy).second->handleEvent(actualName, processID, threadID, event, hbLength, m_Verbose);
+    }
+}
+
+void Watchdog::doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event) {
+    std::string actualName = ekg->actualName();
+    doCallbacks(actualName, ekg->processID(), ekg->threadID(), event, ekg->length());
+}
+
 void Watchdog::monitor() {
     while (m_Running) {
         scanHeartbeats();
@@ -59,14 +74,13 @@ void Watchdog::monitor() {
                 if (normalLimit < smallestHB) {
                     smallestHB = normalLimit;
                 }
+                std::string procName = Heartbeat::extractProcName(ekg->actualName());
                 std::string isAlive = ekg->isAlive() ? "alive" : "dead";
                 std::string isNormal = ekg->isNormal() ? "normal" : "warning";
                 if (!ekg->isAlive()) {
-                    m_CallBack(ekg->actualName(), ekg->processID(), ekg->threadID(), Fatal_HeartbeatEvent,
-                               ekg->length(), m_Verbose);
+                    doCallbacks(ekg, Hung_HeartbeatEvent);
                 } else if (!ekg->isNormal()) {
-                    m_CallBack(ekg->actualName(), ekg->processID(), ekg->threadID(), Abnormal_HeartbeatEvent,
-                               ekg->length(), m_Verbose);
+                    doCallbacks(ekg, Slow_HeartbeatEvent);
                 }
                 if (m_Verbose) {
                     std::cout << "Heartbeat " << ekg->actualName() << " - " << isAlive << "-" << isNormal << std::endl;
@@ -93,11 +107,14 @@ void Watchdog::monitor() {
 }
 
 
-void Watchdog::setCallback(boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent,
-                                                boost::chrono::milliseconds, bool)> _f) {
+void Watchdog::setCallback(const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent,
+                                                      boost::chrono::milliseconds, bool)> &_f) {
     m_CallBack = _f;
 }
 
+void Watchdog::setPolicy(const boost::shared_ptr<IWatchdogPolicy>& policy) {
+    m_Policies[policy->processName()] = policy;
+}
 
 void Watchdog::quiesce() {
     m_Running = false;
@@ -136,8 +153,7 @@ void Watchdog::scanHeartbeats() {
                 // this is a new heartbeat and the process behind it exists - start managing it
                 boost::shared_ptr<EKG> ekg(new EKG(actualName));
                 m_Heartbeats[actualName] = ekg;
-                m_CallBack(actualName, processID, threadID, Started_HeartbeatEvent, boost::chrono::milliseconds(0),
-                           m_Verbose);
+                doCallbacks(actualName, processID, threadID, Started_HeartbeatEvent, boost::chrono::milliseconds(0));
             }
         } else {
             // apparently our process has died. Mark it for next of kin notification
@@ -145,7 +161,7 @@ void Watchdog::scanHeartbeats() {
         }
     }
 
-    // refine down to a single proc name and pid for each dead heartbeat
+    // refine down to a single proc processName and pid for each dead heartbeat
     std::map<std::string, TProcInfo> deadProcs;
     for (boost::container::flat_set<std::string>::iterator it = deadPIDs.begin(); it != deadPIDs.end(); it++) {
         std::string actualName = *it;
@@ -162,8 +178,8 @@ void Watchdog::scanHeartbeats() {
         TProcInfo procInfo = (*it).second;
         if (m_Heartbeats.find(procInfo.m_ActualName) != m_Heartbeats.end()) {
             // we were already managing this heartbeat - notify next of kin and remove it from our list
-            m_CallBack(procInfo.m_ActualName, procInfo.m_ProcID, 0, Fatal_HeartbeatEvent,
-                       boost::chrono::milliseconds(0), m_Verbose);
+            doCallbacks(procInfo.m_ActualName, procInfo.m_ProcID, 0, Dead_HeartbeatEvent,
+                       boost::chrono::milliseconds(0));
             m_Heartbeats.erase(procInfo.m_ActualName);     // stop managing this heartbeat
         } else {
             // Not known to us.  Whatever it was, it's dead now - delete the remnant heartbeat

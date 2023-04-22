@@ -11,8 +11,9 @@
 
 enum HeartbeatEvent {
     Started_HeartbeatEvent,
-    Abnormal_HeartbeatEvent,
-    Fatal_HeartbeatEvent
+    Slow_HeartbeatEvent,
+    Hung_HeartbeatEvent,
+    Dead_HeartbeatEvent
 };
 
 
@@ -41,7 +42,7 @@ struct Heartbeat {
     static bool isHeartbeat( const std::string &name );
     static uint32_t calcCRC( const Heartbeat &heartbeat );
 
-    static std::string heartbeatEventName(const HeartbeatEvent event);
+    static std::string heartbeatEventName(HeartbeatEvent event);
 };
 
 

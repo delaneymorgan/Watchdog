@@ -1,10 +1,11 @@
 #include <iostream>
 #include <csignal>
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/program_options.hpp>
 
-#include "EKG.h"
 #include "Watchdog.h"
+#include "ThreadyWatchdogPolicy.h"
 
 
 boost::shared_ptr<Watchdog> gWatchdog;
@@ -20,7 +21,7 @@ void signal_handler(int sig) {
 /**
  * callback for Watchdog - any events will be reported here
  *
- * @param actualName the full name of the heartbeat
+ * @param actualName the full processName of the heartbeat
  * @param processID the process id of the monitored process
  * @param threadID the thread id within the monitored process
  * @param event - event description
@@ -33,20 +34,25 @@ void callBack(std::string &actualName, pid_t processID, pid_t threadID, Heartbea
     if (verbose) {
         switch (event) {
             case Started_HeartbeatEvent:
-                std::cout << "Heartbeat " << eventName << ": " << Heartbeat::extractProcName(actualName) <<
+                std::cout << "Heartbeat started: " << Heartbeat::extractProcName(actualName) <<
                           ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
                           threadID << std::endl;
                 break;
 
-            case Abnormal_HeartbeatEvent:
-                std::cout << "Heartbeat " << eventName << ": " << Heartbeat::extractProcName(actualName) <<
+            case Slow_HeartbeatEvent:
+                std::cout << "Heartbeat slow: " << Heartbeat::extractProcName(actualName) <<
                           ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
                           threadID << " = " << hbLength.count() << " mSec" << std::endl;
                 break;
 
-            case Fatal_HeartbeatEvent:
-                std::cout << "Process died: " << Heartbeat::extractProcName(actualName) << " - " << processID
+            case Hung_HeartbeatEvent:
+                std::cout << "Process hung: " << Heartbeat::extractProcName(actualName) << " - " << processID
                           << std::endl;
+                break;
+
+            case Dead_HeartbeatEvent:
+                std::cout << "Process died: " << Heartbeat::extractProcName(actualName) <<
+                          " - " << processID << std::endl;
                 break;
 
             default:
@@ -90,6 +96,8 @@ int main(int argc, char *argv[]) {
             new Watchdog(boost::chrono::milliseconds(1000), args.count("auto"), args.count("verbose")));
     gWatchdog = watchdog;
     watchdog->setCallback(callBack);
+    boost::shared_ptr<ThreadyWatchdogPolicy> threadyPolicy = boost::make_shared<ThreadyWatchdogPolicy>();
+    watchdog->setPolicy(threadyPolicy);
     watchdog->monitor();
     std::cout << std::endl << "Finished!" << std::endl;
     return 0;
