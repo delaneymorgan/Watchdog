@@ -1,8 +1,136 @@
 # Watchdog
-C++98/Boost Watchdog Example Using Shared Memory
+C++98/Boost Watchdog classes Using Shared Memory
 
-### Thready
-Creates several threads, with each thread owning its own heartbeat.
+There are two sample applications:
+* ThreadyMain - a client of the watchdog
+* WatchdogMain - an example implementation of a watchdog
 
-### Watchdog
-Scans shared memory for heartbeats and monitors each one for timeliness.
+### ThreadyMain
+This test application creates a specified number of threads using the Thready sample class,
+each with their own heartbeat, managed via the PaceMaker class.
+It specifies "normal" and "fatal" heartbeat ranges of 500msec and 1 sec respectively.
+A command-line option exists to vary the pulse rate in each thread randomly,
+which will occasionally trigger events in the watchdog.
+
+<!--
+@startuml
+class ThreadyMain
+class Thready {
+-string m_ProcName
+-string m_ThreadName
+-bool m_Running
+-bool m_Tamper
+-bool m_Verbose
+-PaceMaker m_PaceMaker
+-milliseconds m_NormalLimit
+-milliseconds m_AbsoluteLimit
+
++Thready( procName, id, normalLimit, absoluteLimit, tamper, verbose)
++void run()
++void quiesce()
+}
+class PaceMaker {
+-string m_ProcName
+-string m_ThreadName
+-string m_ActualName
+-milliseconds m_NormalLimit
+-milliseconds m_AbsoluteLimit
+-mutex m_BeatMutex
+-mapped_region m_Region
+
++PaceMaker( procName, threadName, normalLimit, absoluteLimit)
++void beat()
+}
+class Heartbeat {
++milliseconds m_NormalLimit
++milliseconds m_AbsoluteLimit
++time_point m_Beat
+
++void SetCRC( heartbeat)
++bool isCRCOK( heartbeat)
++string makeActualName( procName, threadName)
++string extractUserName( actualName)
++string extractProcName( actualName)
++string extractThreadName( actualName)
++pid_t extractProcessID( actualName)
++pid_t extractThreadID( actualName)
++bool isHeartbeat( name)
++utin32)t calcCRC( heartbeat)
+}
+ThreadyMain "1" *-- "n" Thready
+Thready "1" *-- "1" PaceMaker
+PaceMaker "1" *-- "1" Heartbeat
+@enduml
+
+-->
+
+![Alt text](./ThreadyMain.svg)
+<img src="./ThreadyMain.svg">
+
+
+### WatchdogMain
+This test application scans shared memory for heartbeats and monitors each one for timeliness.
+It leverages the Watchdog and EKG classes to do this.
+
+<!--
+@startuml
+class WatchdogMain
+
+class Watchdog {
+-bool m_Running
+-bool m_AutoScan
+-bool m_Verbose
+-milliseconds m_ScanPeriod
+-function m_Callback
+
++Watchdog( scanPeriod, autoScan, verbose)
++void setCallback( function)
++void setPolicy( policy)
++void monitor()
++void quiesce()
+
+-void scanHeartbeats()
+-void doCallbacks( actualName, processID, threadID, event, hbLength)
+}
+
+class EKG {
+-string m_ActualName
+-string m_UserName
+-pid_t m_ProcessID
+-pid_t m_ThreadID
+-mapped_region m_Region
+
++EKG( actualName)
++bool isAlive()
++bool isNormal()
++milliseconds length()
++string actualName()
++milliseconds normalLimit()
++pid_t processID()
++pid_t threadID()
+}
+
+class Heartbeat {
++milliseconds m_NormalLimit
++milliseconds m_AbsoluteLimit
++time_point m_Beat
+
++void SetCRC( heartbeat)
++bool isCRCOK( heartbeat)
++string makeActualName( procName, threadName)
++string extractUserName( actualName)
++string extractProcName( actualName)
++string extractThreadName( actualName)
++pid_t extractProcessID( actualName)
++pid_t extractThreadID( actualName)
++bool isHeartbeat( name)
++utin32)t calcCRC( heartbeat)
+}
+WatchdogMain "1" *-- "1" Watchdog
+Watchdog "1" *-- "n" EKG
+EKG "1" *-- "1" Heartbeat
+@enduml
+-->
+
+![Alt text](./WatchdogMain.svg)
+<img src="./WatchdogMain.svg">
