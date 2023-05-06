@@ -1,6 +1,11 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file Thready.cpp
+ *
+ * @brief this is an example class which creates a single thread and an associated PaceMaker instance.
+ * The example program ThreadyMain creates n instances of this class.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #include "Thready.h"
 
@@ -39,7 +44,7 @@ void Thready::run() {
     // create pacemaker here to get thread id
     m_PaceMaker = boost::shared_ptr<PaceMaker>(new PaceMaker(m_ProcName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
     while ( m_Running ) {
-        m_PaceMaker->beat();
+        m_PaceMaker->pulse();
         std::stringstream oss;
         if (m_Verbose) {
             oss << m_ThreadName << " beating" << std::endl;

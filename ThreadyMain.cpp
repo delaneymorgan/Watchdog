@@ -1,6 +1,12 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file ThreadyMain.cpp
+ *
+ * @brief this is an example program demonstrating the structure of a Watchdog client application.
+ * It creates the specified number of instnaces of Thready, each with it's own Heartbeat, managed via the PaceMaker
+ * class.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #include "Thready.h"
 

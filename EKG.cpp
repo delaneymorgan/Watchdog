@@ -1,6 +1,10 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file EKG.cpp
+ *
+ * @brief the EKG class used by the Watchdog class to manage a single heartbeat
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #include "EKG.h"
 
@@ -16,7 +20,6 @@ using namespace boost::interprocess;
 
 EKG::EKG( const std::string &actualName ) :
         m_ActualName( actualName ),
-        m_UserName( Heartbeat::extractUserName( actualName )),
         m_ProcessID( getpid()),
         m_ThreadID( gettid()) {
     shared_memory_object shm;

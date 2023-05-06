@@ -1,6 +1,10 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file EKG.h
+ *
+ * @brief the EKG class used by the Watchdog class to manage a single heartbeat
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #ifndef WATCHDOG_EKG_H
 #define WATCHDOG_EKG_H
@@ -33,11 +37,10 @@ public:
     pid_t threadID() const;
 
 private:
-    const std::string m_ActualName;
-    const std::string m_UserName;
-    pid_t m_ProcessID;
-    pid_t m_ThreadID;
-    boost::interprocess::mapped_region m_Region;
+    const std::string m_ActualName;     // the name of the region as it appears in /dev/shm
+    pid_t m_ProcessID;  // the heartbeat's process id
+    pid_t m_ThreadID;   // the heartbeat's thread id
+    boost::interprocess::mapped_region m_Region;    // the actual region in shared memory for this heartbeat
 };
 
 #endif //WATCHDOG_EKG_H

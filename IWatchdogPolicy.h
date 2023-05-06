@@ -1,6 +1,10 @@
-//
-// Created by craig on 22/04/23.
-//
+/**
+ * @file IWatchdogPolicy.h
+ *
+ * @brief an abstract class for managing events from the Watchdog class
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #ifndef WATCHDOG_IWATCHDOGPOLICY_H
 #define WATCHDOG_IWATCHDOGPOLICY_H

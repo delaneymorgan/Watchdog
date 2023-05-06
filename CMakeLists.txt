@@ -5,16 +5,20 @@ find_package(Boost COMPONENTS system filesystem thread chrono regex program_opti
 
 set(CMAKE_CXX_STANDARD 98)
 
-add_executable(Watchdog
+add_executable(WatchdogMain
         WatchdogMain.cpp
         Watchdog.cpp
         Watchdog.h
         EKG.cpp
         EKG.h
         Heartbeat.h
-        Heartbeat.cpp IWatchdogPolicy.cpp IWatchdogPolicy.h ThreadyWatchdogPolicy.cpp ThreadyWatchdogPolicy.h)
+        Heartbeat.cpp
+        IWatchdogPolicy.cpp
+        IWatchdogPolicy.h
+        ThreadyMainWatchdogPolicy.cpp
+        ThreadyMainWatchdogPolicy.h macros.h)
 
-target_link_libraries(Watchdog
+target_link_libraries(WatchdogMain
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_CHRONO_LIBRARY}
@@ -22,7 +26,7 @@ target_link_libraries(Watchdog
         ${Boost_REGEX_LIBRARY}
         ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
-add_executable(Thready
+add_executable(ThreadyMain
         ThreadyMain.cpp
         Heartbeat.h
         Heartbeat.cpp
@@ -31,7 +35,7 @@ add_executable(Thready
         PaceMaker.h
         PaceMaker.cpp)
 
-target_link_libraries(Thready
+target_link_libraries(ThreadyMain
         ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_CHRONO_LIBRARY}

@@ -1,6 +1,11 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file Thready.h
+ *
+ * @brief this is an example class which creates a single thread and an associated PaceMaker instance.
+ * The example program ThreadyMain creates n instances of this class.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #ifndef WATCHDOG_THREADY_H
 #define WATCHDOG_THREADY_H

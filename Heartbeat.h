@@ -1,6 +1,10 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file Heartbeat.h
+ *
+ * @brief the Heartbeat structure is stored in shared memory.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #ifndef WATCHDOG_HEARTBEAT_H
 #define WATCHDOG_HEARTBEAT_H

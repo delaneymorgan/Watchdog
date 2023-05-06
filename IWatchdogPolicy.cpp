@@ -1,6 +1,10 @@
-//
-// Created by craig on 22/04/23.
-//
+/**
+ * @file IWatchdogPolicy.cpp
+ *
+ * @brief an abstract class for managing events from the Watchdog class
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #include "IWatchdogPolicy.h"
 
@@ -11,6 +15,11 @@ IWatchdogPolicy::IWatchdogPolicy(const std::string &processName) :
 IWatchdogPolicy::~IWatchdogPolicy() {
 }
 
+/**
+ * returns the name of the policy's relevant process
+ *
+ * @return std::string the process name
+ */
 std::string IWatchdogPolicy::processName() const {
     return m_ProcessName;
 }

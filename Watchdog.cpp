@@ -1,13 +1,16 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file Watchdog.cpp
+ *
+ * @brief the Watchdog class used by a watchdog application to manage heartbeats
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #include "Watchdog.h"
 
 #include <iostream>
 #include <csignal>
 
-#include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 
@@ -22,17 +25,6 @@ namespace {
     const std::string HEARTBEATS_DIR = "/dev/shm/";
     const std::string SHARED_MEMORY_PATH = "/dev/shm";
     typedef std::map<std::string, boost::shared_ptr<EKG> >::iterator THeartbeatIterator;
-
-    struct TProcInfo {
-        pid_t m_ProcID;
-        std::string m_ActualName;
-
-        TProcInfo() :
-                m_ProcID(),
-                m_ActualName() {
-        }
-    };
-
 }
 
 
@@ -47,7 +39,15 @@ Watchdog::Watchdog(boost::chrono::milliseconds scanPeriod, bool autoScan, bool v
 Watchdog::~Watchdog() {
 }
 
-
+/**
+ * perform callbacks, both the global callback and any specific policy callback
+ *
+ * @param actualName the heartbeat's name in shared memory
+ * @param processID the heartbeat's process id
+ * @param threadID the heartbeat's thread id (0 => no thread)
+ * @param event the heartbeat event type
+ * @param hbLength the duration since the heartbeat's last pulse
+ */
 void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
                            boost::chrono::milliseconds hbLength) {
     std::string procName = Heartbeat::extractProcName(actualName);
@@ -58,11 +58,20 @@ void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threa
     }
 }
 
+/**
+ * perform callbacks for ekgs
+ *
+ * @param ekg the ekg with an event to report
+ * @param event the event type
+ */
 void Watchdog::doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event) {
     std::string actualName = ekg->actualName();
     doCallbacks(actualName, ekg->processID(), ekg->threadID(), event, ekg->length());
 }
 
+/**
+ * Watchdog's main loop
+ */
 void Watchdog::monitor() {
     while (m_Running) {
         scanHeartbeats();
@@ -106,21 +115,35 @@ void Watchdog::monitor() {
     }
 }
 
-
+/**
+ * set the global callback for the watchdog
+ * @param _f the callback function
+ */
 void Watchdog::setCallback(const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent,
                                                       boost::chrono::milliseconds, bool)> &_f) {
     m_CallBack = _f;
 }
 
-void Watchdog::setPolicy(const boost::shared_ptr<IWatchdogPolicy>& policy) {
+/**
+ * add a policy for managing hearbeat events
+ *
+ * @param policy the policy for a specific application
+ */
+void Watchdog::setPolicy(const boost::shared_ptr<IWatchdogPolicy> &policy) {
     m_Policies[policy->processName()] = policy;
 }
 
+/**
+ * quietly let go and die
+ */
 void Watchdog::quiesce() {
     m_Running = false;
 }
 
-
+/**
+ * scan shared memory for heartbeats, checking for events and notifying callbacks and policies
+ *
+ */
 void Watchdog::scanHeartbeats() {
     if (!is_directory(SHARED_MEMORY_PATH)) {
         return;
@@ -130,6 +153,28 @@ void Watchdog::scanHeartbeats() {
     copy(directory_iterator(SHARED_MEMORY_PATH), directory_iterator(), back_inserter(dirList));
 
     // extract set of heartbeats from directory
+    boost::container::flat_set<std::string> candidateHBs = extractCandidateHBs(dirList);
+
+    // compare candidates against our managed EKGs
+    boost::container::flat_set<std::string> deadPIDs = compareAgainstEKGs(candidateHBs);
+
+    // refine down to a single proc processName and pid for each dead heartbeat
+    std::map<std::string, TProcInfo> deadProcs = getDeadProcs(deadPIDs);
+
+    // do next of kin notification
+    notifyStakeholders(deadProcs);
+
+    // stop managing dead heartbeats, and delete any unknown ones
+    cleanHeartbeats(deadPIDs);
+}
+
+/**
+ * extracts a set of heartbeat names from the contents of shared memory
+ *
+ * @param dirList the contents of shared memory
+ * @return the set of heartbeat names
+ */
+boost::container::flat_set<std::string> Watchdog::extractCandidateHBs(const std::vector<directory_entry> &dirList) {
     boost::container::flat_set<std::string> candidateHBs;
     for (std::vector<directory_entry>::const_iterator it = dirList.begin(); it != dirList.end(); it++) {
         std::string path = (*it).path().string();
@@ -139,7 +184,18 @@ void Watchdog::scanHeartbeats() {
             candidateHBs.insert(actualName);
         }
     }
+    return candidateHBs;
+}
 
+/**
+ * compare candidate heartbeats against our EKGs to see if any stakeholders need notification of application starts
+ * also return the heartbeat names not belonging to any live processes
+ *
+ * @param candidateHBs all the heartbeats in shared memory
+ * @return the set of heartbeat names belonging to dead processes
+ */
+boost::container::flat_set<std::string>
+Watchdog::compareAgainstEKGs(boost::container::flat_set<std::string> &candidateHBs) {
     // compare candidates against our managed EKGs
     boost::container::flat_set<std::string> deadPIDs;
     for (boost::container::flat_set<std::string>::iterator it = candidateHBs.begin();
@@ -160,8 +216,16 @@ void Watchdog::scanHeartbeats() {
             deadPIDs.insert(actualName);
         }
     }
+    return deadPIDs;
+}
 
-    // refine down to a single proc processName and pid for each dead heartbeat
+/**
+ * get the application information for each dead heartbeat
+ *
+ * @param deadPIDs the set of heartbeats that no longer have processes
+ * @return a map of process names and their info
+ */
+std::map<std::string, TProcInfo> Watchdog::getDeadProcs(boost::container::flat_set<std::string> &deadPIDs) {
     std::map<std::string, TProcInfo> deadProcs;
     for (boost::container::flat_set<std::string>::iterator it = deadPIDs.begin(); it != deadPIDs.end(); it++) {
         std::string actualName = *it;
@@ -171,23 +235,37 @@ void Watchdog::scanHeartbeats() {
         procInfo.m_ActualName = actualName;
         deadProcs[procName] = procInfo;
     }
+    return deadProcs;
+}
 
-    // do next of kin notification
+/**
+ * notify stakeholders that the application (and all its threads) have died
+ *
+ * @param deadProcs the map of dead heartbeats and their processes
+ */
+void Watchdog::notifyStakeholders(std::map<std::string, TProcInfo> &deadProcs) {
     for (std::map<std::string, TProcInfo>::iterator it = deadProcs.begin(); it != deadProcs.end(); it++) {
         std::string procName = (*it).first;
         TProcInfo procInfo = (*it).second;
         if (m_Heartbeats.find(procInfo.m_ActualName) != m_Heartbeats.end()) {
             // we were already managing this heartbeat - notify next of kin and remove it from our list
             doCallbacks(procInfo.m_ActualName, procInfo.m_ProcID, 0, Dead_HeartbeatEvent,
-                       boost::chrono::milliseconds(0));
+                        boost::chrono::milliseconds(0));
             m_Heartbeats.erase(procInfo.m_ActualName);     // stop managing this heartbeat
         } else {
             // Not known to us.  Whatever it was, it's dead now - delete the remnant heartbeat
             boost::interprocess::shared_memory_object::remove(procInfo.m_ActualName.c_str());
         }
     }
+}
 
-    // stop managing dead heartbeats, and delete any unknown ones
+/**
+ * clean up obsolete heartbeats from shared memory, both ones we were managing,
+ * and any others belonging to dead processes
+ *
+ * @param deadPIDs the set of dead process ids
+ */
+void Watchdog::cleanHeartbeats(boost::container::flat_set<std::string> &deadPIDs) {
     for (boost::container::flat_set<std::string>::iterator it = deadPIDs.begin(); it != deadPIDs.end(); it++) {
         std::string actualName = *it;
         if (m_Heartbeats.find(actualName) != m_Heartbeats.end()) {

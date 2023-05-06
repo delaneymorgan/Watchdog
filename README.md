@@ -2,8 +2,8 @@
 C++98/Boost Watchdog classes Using Shared Memory
 
 There are two sample applications:
-* ThreadyMain - a client of the watchdog
 * WatchdogMain - an example implementation of a watchdog
+* ThreadyMain - a client of the watchdog
 
 ### ThreadyMain
 This test application creates a specified number of threads using the Thready sample class,
@@ -39,7 +39,7 @@ class PaceMaker {
 -mapped_region m_Region
 
 +PaceMaker( procName, threadName, normalLimit, absoluteLimit)
-+void beat()
++void pulse()
 }
 class Heartbeat {
 +milliseconds m_NormalLimit
@@ -64,13 +64,13 @@ PaceMaker "1" *-- "1" Heartbeat
 
 -->
 
-![Alt text](./ThreadyMain.svg)
-<img src="./ThreadyMain.svg">
+![](./ThreadyMain.svg)
 
 
 ### WatchdogMain
-This test application scans shared memory for heartbeats and monitors each one for timeliness.
-It leverages the Watchdog and EKG classes to do this.
+This test application uses the Watchdog class to manage heartbeats stored in shared memory.
+The Watchdog class scans shared memory for heartbeats and monitors each one for timeliness.
+It uses an instance of the EKG class to monitor a single heartbeat.
 
 <!--
 @startuml
@@ -91,6 +91,18 @@ class Watchdog {
 
 -void scanHeartbeats()
 -void doCallbacks( actualName, processID, threadID, event, hbLength)
+}
+
+class IWatchdogPolicy {
+#string m_ProcessName
++IWatchdogPolicy( processName)
++string processName()
++void handleEvent( actualName, processID, threadID, event, hbLength, verbose)
+}
+
+class ThreadyMainWatchdogPolicy {
++ThreadyMainWatchdogPolicy()
++void handleEvent( actualName, processID, threadID, event, hbLength, verbose)
 }
 
 class EKG {
@@ -129,8 +141,20 @@ class Heartbeat {
 WatchdogMain "1" *-- "1" Watchdog
 Watchdog "1" *-- "n" EKG
 EKG "1" *-- "1" Heartbeat
+IWatchdogPolicy <|-- ThreadyMainWatchdogPolicy
+WatchdogMain *-- ThreadyMainWatchdogPolicy
 @enduml
 -->
 
-![Alt text](./WatchdogMain.svg)
-<img src="./WatchdogMain.svg">
+![](./WatchdogMain.svg)
+
+
+### How To Use
+
+1. Build both applications with the provided cmake script.
+2. In either order:
+   1. In a terminal window, start ThreadyMain (verbose recommended).
+   2. In a separate terminal window, start Watchdog (verbose recommended)
+3. Examine shared memory (/dev/shm) to see ThreadyMain's heartbeats
+4. If ThreadyMain is terminated, Watchdog should output events.
+5. Examine both applications Usage for other options 

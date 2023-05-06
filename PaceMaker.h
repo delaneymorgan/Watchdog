@@ -1,6 +1,10 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file PaceMaker.h
+ *
+ * @brief the PaceMaker class is used by a Watchdog client to manage the heartbeat for a single thread.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #ifndef WATCHDOG_PACEMAKER_H
 #define WATCHDOG_PACEMAKER_H
@@ -26,7 +30,7 @@ public:
               boost::chrono::milliseconds absoluteLimit);
     virtual ~PaceMaker();
 
-    void beat();
+    void pulse();
 
 private:
     const std::string m_ProcName;

@@ -1,3 +1,13 @@
+/**
+ * @file WatchdogMain.cpp
+ *
+ * @brief this is an example program demonstrating the structure of a Watchdog application.
+ * It creates an instance of the Watchdog class, which in turn will create as many EKG instances as required to
+ * manage heartbeats appearing in shared memory.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
+
 #include <iostream>
 #include <csignal>
 #include <boost/shared_ptr.hpp>
@@ -5,7 +15,7 @@
 #include <boost/program_options.hpp>
 
 #include "Watchdog.h"
-#include "ThreadyWatchdogPolicy.h"
+#include "ThreadyMainWatchdogPolicy.h"
 
 
 boost::shared_ptr<Watchdog> gWatchdog;
@@ -96,7 +106,7 @@ int main(int argc, char *argv[]) {
             new Watchdog(boost::chrono::milliseconds(1000), args.count("auto"), args.count("verbose")));
     gWatchdog = watchdog;
     watchdog->setCallback(callBack);
-    boost::shared_ptr<ThreadyWatchdogPolicy> threadyPolicy = boost::make_shared<ThreadyWatchdogPolicy>();
+    boost::shared_ptr<ThreadyMainWatchdogPolicy> threadyPolicy = boost::make_shared<ThreadyMainWatchdogPolicy>();
     watchdog->setPolicy(threadyPolicy);
     watchdog->monitor();
     std::cout << std::endl << "Finished!" << std::endl;

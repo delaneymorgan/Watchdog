@@ -1,6 +1,10 @@
-//
-// Created by craig on 6/04/23.
-//
+/**
+ * @file PaceMaker.cpp
+ *
+ * @brief the PaceMaker class is used by a Watchdog client to manage the heartbeat for a single thread.
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #include "PaceMaker.h"
 
@@ -42,8 +46,10 @@ PaceMaker::~PaceMaker() {
     // don't release shared memory - that's the watchdog's job
 }
 
-
-void PaceMaker::beat() {
+/**
+ * pulse the heartbeat
+ */
+void PaceMaker::pulse() {
     boost::mutex::scoped_lock beatMutex( m_BeatMutex );
     Heartbeat beat;
     beat.m_NormalLimit = m_NormalLimit;
