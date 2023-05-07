@@ -42,7 +42,7 @@ namespace postyle = boost::program_options::command_line_style;
 po::variables_map Usage(int argc, char *argv[]) {
     po::options_description desc( "Options" );
     desc.add_options()
-            ( "num,n", po::value<unsigned int>()->default_value(20), "The #threads" )
+            ( "num,n", po::value<unsigned int>()->default_value(20), "The #threads (1-500)" )
             ( "tamper,t", "Tamper with heartbeats" )
             ( "verbose,v", "Verbose mode" )
             ( "help,?", "Print this help message" );
@@ -50,6 +50,12 @@ po::variables_map Usage(int argc, char *argv[]) {
     try {
         po::store( po::parse_command_line( argc, argv, desc ), vm );
         po::notify( vm );
+        int num = vm["num"].as<unsigned int>();
+        if ((num > 500) || (num < 1)) {
+            std::cout << "Error: Too many threads" << std::endl << std::endl;
+            std::cout << "Usage: " << argv[0] << std::endl << desc << std::endl;
+            exit( 0 );
+        }
         if ( vm.count( "help" )) {
             std::cout << "Usage: " << argv[0] << std::endl << desc << std::endl;
             exit( 0 );
