@@ -72,6 +72,9 @@ This test application uses the Watchdog class to manage heartbeats stored in sha
 The Watchdog class scans shared memory for heartbeats and monitors each one for timeliness.
 It uses an instance of the EKG class to monitor a single heartbeat.
 
+The WatchdogMain application has a global callback which will receive events for all applications.
+In addition to this, the ThreadyMainWatchdogPolicy class also has a callback just for its events.
+
 <!--
 @startuml
 class WatchdogMain

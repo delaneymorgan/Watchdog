@@ -21,7 +21,7 @@ ThreadyMainWatchdogPolicy::~ThreadyMainWatchdogPolicy() {
 }
 
 /**
- * Handle the Watchdog event
+ * a policy-specifc callback for handling Watchdog events, just for this application
  *
  * @param actualName the name of the heartbeat in shared memory
  * @param processID the heartbeat's process id

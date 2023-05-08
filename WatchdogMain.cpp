@@ -29,7 +29,8 @@ void signal_handler(int sig) {
 
 
 /**
- * callback for Watchdog - any events will be reported here
+ * a global callback for Watchdog - all events will be reported here,
+ * as well as the policy-specific callbacks.
  *
  * @param actualName the full processName of the heartbeat
  * @param processID the process id of the monitored process
