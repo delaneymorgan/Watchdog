@@ -20,11 +20,12 @@ enum HeartbeatEvent {
     Dead_HeartbeatEvent
 };
 
+typedef uint64_t TTickCount;        // system tick count in msecs
 
 struct Heartbeat {
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;
-    boost::chrono::system_clock::time_point m_Beat;
+    TTickCount m_Beat;
     uint32_t m_CRC;
 
 
@@ -45,6 +46,7 @@ struct Heartbeat {
     static pid_t extractThreadID( const std::string &actualName );
     static bool isHeartbeat( const std::string &name );
     static uint32_t calcCRC( const Heartbeat &heartbeat );
+    static TTickCount tickCountNow();
 
     static std::string heartbeatEventName(HeartbeatEvent event);
 };

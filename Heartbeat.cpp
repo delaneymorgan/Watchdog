@@ -16,13 +16,14 @@
 
 #include <map>
 #include <sstream>
+#include <ctime>
 #include <unistd.h>
 #include <vector>
 
 namespace {
     const std::string HEARTBEAT_PREFIX = "hb_";
     const boost::regex HEARTBEAT_REGEX("^hb_[A-Z|a-z|0-9|-]+\\:[A-Z|a-z|0-9|-]+\\.\\d+\\.\\d+$");
-    std::map<HeartbeatEvent, std::string> HEARTBEATEVENT_TO_STRING = boost::assign::map_list_of
+    std::map<HeartbeatEvent, std::string> HEARTBEAT_EVENT_TO_STRING = boost::assign::map_list_of
             (Started_HeartbeatEvent, "Started")
             (Slow_HeartbeatEvent, "Slow")
             (Hung_HeartbeatEvent, "Hung")
@@ -99,5 +100,23 @@ uint32_t Heartbeat::calcCRC(const Heartbeat &heartbeat) {
 }
 
 std::string Heartbeat::heartbeatEventName(HeartbeatEvent event) {
-    return HEARTBEATEVENT_TO_STRING[event];
+    return HEARTBEAT_EVENT_TO_STRING[event];
+}
+
+/**
+ * returns the current tick count
+ *
+ * NOTE: this is unaffected by ntp, unlike system clock
+ *
+ * NOTE: tick count may be affected by clock frequency drift,
+ * although this should be insignificant in heartbeat applications.
+ *
+ * @return the current tick count in milliseconds
+ */
+TTickCount Heartbeat::tickCountNow() {
+    struct timespec now = {};
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    TTickCount tick = now.tv_nsec / 1000000;
+    tick += now.tv_sec * 1000;
+    return tick;
 }

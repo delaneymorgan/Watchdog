@@ -44,7 +44,7 @@ class PaceMaker {
 class Heartbeat {
 +milliseconds m_NormalLimit
 +milliseconds m_AbsoluteLimit
-+time_point m_Beat
++TTickCount m_Beat
 
 +void SetCRC( heartbeat)
 +bool isCRCOK( heartbeat)
@@ -56,6 +56,7 @@ class Heartbeat {
 +pid_t extractThreadID( actualName)
 +bool isHeartbeat( name)
 +utin32)t calcCRC( heartbeat)
++TTickCount tickCountNow()
 }
 ThreadyMain "1" *-- "n" Thready
 Thready "1" *-- "1" PaceMaker
@@ -128,7 +129,7 @@ class EKG {
 class Heartbeat {
 +milliseconds m_NormalLimit
 +milliseconds m_AbsoluteLimit
-+time_point m_Beat
++TTickCount m_Beat
 
 +void SetCRC( heartbeat)
 +bool isCRCOK( heartbeat)
@@ -140,6 +141,7 @@ class Heartbeat {
 +pid_t extractThreadID( actualName)
 +bool isHeartbeat( name)
 +utin32)t calcCRC( heartbeat)
++TTickCount tickCountNow()
 }
 WatchdogMain "1" *-- "1" Watchdog
 Watchdog "1" *-- "n" EKG

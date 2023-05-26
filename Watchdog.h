@@ -60,9 +60,9 @@ private:
                      boost::chrono::milliseconds hbLength);
     void doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event);
     boost::container::flat_set<std::string>
-    extractCandidateHBs(const std::vector<boost::filesystem::directory_entry> &dirList);
+    static extractCandidateHBs(const std::vector<boost::filesystem::directory_entry> &dirList);
     boost::container::flat_set<std::string> compareAgainstEKGs(boost::container::flat_set<std::string> &candidateHBs);
-    std::map<std::string, TProcInfo> getDeadProcs(boost::container::flat_set<std::string> &deadPIDs);
+    static std::map<std::string, TProcInfo> getDeadProcs(boost::container::flat_set<std::string> &deadPIDs);
     void notifyStakeholders(std::map<std::string, TProcInfo> &deadProcs);
     void cleanHeartbeats(boost::container::flat_set<std::string> &deadPIDs);
 

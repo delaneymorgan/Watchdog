@@ -34,15 +34,11 @@ EKG::~EKG() {
 
 
 bool EKG::isAlive() {
+    typedef boost::chrono::milliseconds TMSec;
     bool ret = false;
     Heartbeat beat;
-    boost::chrono::system_clock::time_point timeNow = boost::chrono::system_clock::now();
+    TMSec duration = length();
     std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
-    if ( !Heartbeat::isCRCOK( beat )) {
-        throw CorruptHeartbeat();
-    }
-    boost::chrono::milliseconds duration = boost::chrono::duration_cast<boost::chrono::milliseconds>(
-            timeNow - beat.m_Beat );
     if ( duration <= beat.m_AbsoluteLimit ) {
         ret = true;
     }
@@ -53,13 +49,9 @@ bool EKG::isAlive() {
 bool EKG::isNormal() {
     typedef boost::chrono::milliseconds TMSec;
     bool ret = false;
+    TMSec duration = length();
     Heartbeat beat;
-    boost::chrono::system_clock::time_point timeNow = boost::chrono::system_clock::now();
     std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
-    if ( !Heartbeat::isCRCOK( beat )) {
-        throw CorruptHeartbeat();
-    }
-    TMSec duration = boost::chrono::duration_cast<TMSec>(timeNow - beat.m_Beat );
     if ( duration <= beat.m_NormalLimit ) {
         ret = true;
     }
@@ -92,11 +84,17 @@ pid_t EKG::threadID() const {
 boost::chrono::milliseconds EKG::length() {
     typedef boost::chrono::milliseconds TMSec;
     Heartbeat beat;
-    boost::chrono::system_clock::time_point timeNow = boost::chrono::system_clock::now();
+    TTickCount timeNow = Heartbeat::tickCountNow();
     std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
     if ( !Heartbeat::isCRCOK( beat )) {
         throw CorruptHeartbeat();
     }
-    TMSec hbLength = boost::chrono::duration_cast<TMSec>(timeNow - beat.m_Beat );
+    TMSec hbLength;
+    if (timeNow >= beat.m_Beat) {
+        hbLength = TMSec(timeNow) - TMSec (beat.m_Beat);
+    } else {
+        // tick count has wrapped around zero
+        hbLength = TMSec (timeNow) - TMSec(static_cast<int64_t>(beat.m_Beat));
+    }
     return hbLength;
 }

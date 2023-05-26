@@ -2,7 +2,7 @@
  * @file ThreadyMain.cpp
  *
  * @brief this is an example program demonstrating the structure of a Watchdog client application.
- * It creates the specified number of instnaces of Thready, each with it's own Heartbeat, managed via the PaceMaker
+ * It creates the specified number of instances of Thready, each with it's own Heartbeat, managed via the PaceMaker
  * class.
  *
  * @copyright Delaney & Morgan Computing
@@ -50,7 +50,7 @@ po::variables_map Usage(int argc, char *argv[]) {
     try {
         po::store( po::parse_command_line( argc, argv, desc ), vm );
         po::notify( vm );
-        int num = vm["num"].as<unsigned int>();
+        unsigned int num = vm["num"].as<unsigned int>();
         if ((num > 500) || (num < 1)) {
             std::cout << "Error: Too many threads" << std::endl << std::endl;
             std::cout << "Usage: " << argv[0] << std::endl << desc << std::endl;

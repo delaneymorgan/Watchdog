@@ -12,7 +12,6 @@
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/chrono/duration.hpp>
-#include <boost/chrono/chrono.hpp>
 
 #include "Heartbeat.h"
 
@@ -54,7 +53,7 @@ void PaceMaker::pulse() {
     Heartbeat beat;
     beat.m_NormalLimit = m_NormalLimit;
     beat.m_AbsoluteLimit = m_AbsoluteLimit;
-    beat.m_Beat = boost::chrono::system_clock::now();
+    beat.m_Beat = Heartbeat::tickCountNow();
     Heartbeat::SetCRC( beat );
     std::memcpy( m_Region.get_address(), reinterpret_cast<char *>( &beat), m_Region.get_size());
 }
