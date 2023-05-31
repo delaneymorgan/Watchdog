@@ -19,7 +19,7 @@ public:
     ~ThreadyMainWatchdogPolicy();
 
     virtual void handleEvent(std::basic_string<char> actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                             boost::chrono::milliseconds hbLength, bool verbose);
+                             boost::chrono::milliseconds hbLength, int info, bool verbose);
 
 };
 

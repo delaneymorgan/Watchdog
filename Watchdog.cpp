@@ -47,14 +47,15 @@ Watchdog::~Watchdog() {
  * @param threadID the heartbeat's thread id (0 => no thread)
  * @param event the heartbeat event type
  * @param hbLength the duration since the heartbeat's last pulse
+ * @param info optional client state during this event
  */
 void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                           boost::chrono::milliseconds hbLength) {
+                           boost::chrono::milliseconds hbLength, int info) {
     std::string procName = Heartbeat::extractProcName(actualName);
-    m_CallBack(actualName, processID, threadID, event, hbLength, m_Verbose);
+    m_CallBack(actualName, processID, threadID, event, hbLength, info, m_Verbose);
     std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(procName);
     if (policy != m_Policies.end()) {
-        (*policy).second->handleEvent(actualName, processID, threadID, event, hbLength, m_Verbose);
+        (*policy).second->handleEvent(actualName, processID, threadID, event, hbLength, info, m_Verbose);
     }
 }
 
@@ -66,7 +67,7 @@ void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threa
  */
 void Watchdog::doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event) {
     std::string actualName = ekg->actualName();
-    doCallbacks(actualName, ekg->processID(), ekg->threadID(), event, ekg->length());
+    doCallbacks(actualName, ekg->processID(), ekg->threadID(), event, ekg->length(), ekg->info());
 }
 
 /**
@@ -120,7 +121,7 @@ void Watchdog::monitor() {
  * @param _f the callback function
  */
 void Watchdog::setCallback(const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent,
-                                                      boost::chrono::milliseconds, bool)> &_f) {
+                                                      boost::chrono::milliseconds, int, bool)> &_f) {
     m_CallBack = _f;
 }
 

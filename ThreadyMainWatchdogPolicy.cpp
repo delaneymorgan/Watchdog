@@ -28,10 +28,12 @@ ThreadyMainWatchdogPolicy::~ThreadyMainWatchdogPolicy() {
  * @param threadID the heartbeat's thread id (0 => no thread)
  * @param event the heartbeat event type
  * @param hbLength the duration since the heartbeat's last pulse
+ * @param info optional client state during this event
  * @param verbose true => versbose, false => otherwise
  */
 void ThreadyMainWatchdogPolicy::handleEvent(std::basic_string<char> actualName, pid_t processID, pid_t threadID,
-                                            HeartbeatEvent event, boost::chrono::milliseconds hbLength, bool verbose) {
+                                            HeartbeatEvent event, boost::chrono::milliseconds hbLength, int info,
+                                            bool verbose) {
 
     std::string eventName = Heartbeat::heartbeatEventName(event);
     switch (event) {
@@ -49,7 +51,7 @@ void ThreadyMainWatchdogPolicy::handleEvent(std::basic_string<char> actualName, 
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat slow: " <<
                     Heartbeat::extractProcName(actualName) << ":" <<
                     Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                    threadID << " = " << hbLength.count() << " mSec" << std::endl;
+                    threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
             }
             // here we can choose to vary process' priority with rnice
             // or kill it and make it restart
@@ -57,8 +59,10 @@ void ThreadyMainWatchdogPolicy::handleEvent(std::basic_string<char> actualName, 
 
         case Hung_HeartbeatEvent:
             if (verbose) {
-                std::cout << QUOTE(ThreadyMainWatchdogPolicy) <<
-                    ": Process hung: " << Heartbeat::extractProcName(actualName) << " - " << processID << std::endl;
+                std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat hung: " <<
+                          Heartbeat::extractProcName(actualName) << ":" <<
+                          Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
+                          threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
             }
             break;
 

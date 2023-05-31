@@ -26,6 +26,7 @@ struct Heartbeat {
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;
     TTickCount m_Beat;
+    int m_Info;
     uint32_t m_CRC;
 
 
@@ -33,6 +34,7 @@ struct Heartbeat {
             m_NormalLimit( 0 ),
             m_AbsoluteLimit( 0 ),
             m_Beat(),
+            m_Info(),
             m_CRC( 0 ) {}
 
 

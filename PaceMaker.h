@@ -30,7 +30,7 @@ public:
               boost::chrono::milliseconds absoluteLimit);
     virtual ~PaceMaker();
 
-    void pulse();
+    void pulse(int info=0);
 
 private:
     const std::string m_ProcName;

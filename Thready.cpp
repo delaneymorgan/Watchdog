@@ -15,19 +15,19 @@
 #include <boost/random.hpp>
 
 
-#define QUOTE( x ) #x
+#define QUOTE(x) #x
 
 
 Thready::Thready(const std::string &procName, unsigned int id, boost::chrono::milliseconds normalLimit,
                  boost::chrono::milliseconds absoluteLimit, bool tamper, bool verbose)
         :
         m_ProcName(procName),
-        m_Running( true ),
-        m_Tamper( tamper),
-        m_Verbose( verbose),
+        m_Running(true),
+        m_Tamper(tamper),
+        m_Verbose(verbose),
         m_PaceMaker(),
-        m_NormalLimit( normalLimit ),
-        m_AbsoluteLimit( absoluteLimit ) {
+        m_NormalLimit(normalLimit),
+        m_AbsoluteLimit(absoluteLimit) {
     std::stringstream oss;
     oss << QUOTE(Thready) << "-" << id;
     m_ThreadName = oss.str();
@@ -43,8 +43,8 @@ void Thready::run() {
     typedef boost::mt19937 TRNG;
     // create pacemaker here to get thread id
     m_PaceMaker = boost::shared_ptr<PaceMaker>(new PaceMaker(m_ProcName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
-    while ( m_Running ) {
-        m_PaceMaker->pulse();
+    while (m_Running) {
+        m_PaceMaker->pulse(Happy_ThreadyState);
         std::stringstream oss;
         if (m_Verbose) {
             oss << m_ThreadName << " beating" << std::endl;
@@ -59,7 +59,7 @@ void Thready::run() {
             boost::variate_generator<TRNG, boost::uniform_int<> > dice(rng, variance);
             sleepTime = boost::chrono::milliseconds(dice());
         }
-        boost::this_thread::sleep_for( sleepTime );
+        boost::this_thread::sleep_for(sleepTime);
     }
 }
 

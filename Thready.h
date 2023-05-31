@@ -16,14 +16,21 @@
 
 #include "PaceMaker.h"
 
+enum ThreadyState {
+    NONE_ThreadyState,
+    Happy_ThreadyState,
+    Sad_ThreadyState
+};
 
 class Thready {
 public:
     Thready(const std::string &procName, unsigned int id, boost::chrono::milliseconds normalLimit,
             boost::chrono::milliseconds absoluteLimit, bool tamper, bool verbose);
     virtual ~Thready();
+
     void run();
     void quiesce();
+
 private:
     std::string m_ProcName;
     std::string m_ThreadName;

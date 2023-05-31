@@ -58,6 +58,12 @@ bool EKG::isNormal() {
     return ret;
 }
 
+int EKG::info() {
+    Heartbeat beat;
+    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    return beat.m_Info;
+}
+
 
 std::string EKG::actualName() {
     return m_ActualName;

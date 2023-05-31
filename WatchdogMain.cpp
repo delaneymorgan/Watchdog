@@ -37,10 +37,11 @@ void signal_handler(int sig) {
  * @param threadID the thread id within the monitored process
  * @param event - event description
  * @param hbLength the length of the heartbeat that triggered the event
+ * @param info optional client state during event
  * @param verbose true => verbose, false => quiet
  */
 void callBack(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-              boost::chrono::milliseconds hbLength, bool verbose) {
+              boost::chrono::milliseconds hbLength, int info, bool verbose) {
     std::string eventName = Heartbeat::heartbeatEventName(event);
     if (verbose) {
         switch (event) {
@@ -53,12 +54,13 @@ void callBack(std::string &actualName, pid_t processID, pid_t threadID, Heartbea
             case Slow_HeartbeatEvent:
                 std::cout << "Heartbeat slow: " << Heartbeat::extractProcName(actualName) <<
                           ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                          threadID << " = " << hbLength.count() << " mSec" << std::endl;
+                          threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
                 break;
 
             case Hung_HeartbeatEvent:
-                std::cout << "Process hung: " << Heartbeat::extractProcName(actualName) << " - " << processID
-                          << std::endl;
+                std::cout << "Heartbeat hung: " << Heartbeat::extractProcName(actualName) <<
+                          ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
+                          threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
                 break;
 
             case Dead_HeartbeatEvent:

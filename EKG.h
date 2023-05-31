@@ -30,6 +30,7 @@ public:
     bool isAlive();
     bool isNormal();
     boost::chrono::milliseconds length();
+    int info();
 
     std::string actualName();
     boost::chrono::milliseconds normalLimit();

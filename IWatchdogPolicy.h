@@ -23,7 +23,7 @@ public:
 
     std::string processName() const;
     virtual void handleEvent(std::basic_string<char> actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                             boost::chrono::milliseconds hbLength, bool verbose) = 0;
+                             boost::chrono::milliseconds hbLength, int info, bool verbose) = 0;
 
 protected:
     std::string m_ProcessName;
