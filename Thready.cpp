@@ -9,6 +9,8 @@
 
 #include "Thready.h"
 
+#include "ThreadyState.h"
+
 #include <iostream>
 #include <sstream>
 

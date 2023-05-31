@@ -7,6 +7,8 @@
  */
 
 #include "ThreadyMainWatchdogPolicy.h"
+
+#include "ThreadyState.h"
 #include "macros.h"
 
 #include <iostream>
@@ -51,7 +53,8 @@ void ThreadyMainWatchdogPolicy::handleEvent(std::basic_string<char> actualName, 
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat slow: " <<
                     Heartbeat::extractProcName(actualName) << ":" <<
                     Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                    threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
+                    threadID << " (" << threadyStateName(ThreadyState(info)) << ") = " <<
+                    hbLength.count() << " mSec" << std::endl;
             }
             // here we can choose to vary process' priority with rnice
             // or kill it and make it restart
@@ -60,9 +63,10 @@ void ThreadyMainWatchdogPolicy::handleEvent(std::basic_string<char> actualName, 
         case Hung_HeartbeatEvent:
             if (verbose) {
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat hung: " <<
-                          Heartbeat::extractProcName(actualName) << ":" <<
-                          Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                          threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
+                    Heartbeat::extractProcName(actualName) << ":" <<
+                    Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
+                    threadID << " (" << threadyStateName(ThreadyState(info)) << ") = " <<
+                    hbLength.count() << " mSec" << std::endl;
             }
             break;
 

@@ -16,11 +16,6 @@
 
 #include "PaceMaker.h"
 
-enum ThreadyState {
-    NONE_ThreadyState,
-    Happy_ThreadyState,
-    Sad_ThreadyState
-};
 
 class Thready {
 public:

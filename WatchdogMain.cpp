@@ -54,13 +54,13 @@ void callBack(std::string &actualName, pid_t processID, pid_t threadID, Heartbea
             case Slow_HeartbeatEvent:
                 std::cout << "Heartbeat slow: " << Heartbeat::extractProcName(actualName) <<
                           ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                          threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
+                          threadID << " (" << info << ") = " << hbLength.count() << " mSec" << std::endl;
                 break;
 
             case Hung_HeartbeatEvent:
                 std::cout << "Heartbeat hung: " << Heartbeat::extractProcName(actualName) <<
                           ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                          threadID << "(" << info << ") = " << hbLength.count() << " mSec" << std::endl;
+                          threadID << " (" << info << ") = " << hbLength.count() << " mSec" << std::endl;
                 break;
 
             case Dead_HeartbeatEvent:
