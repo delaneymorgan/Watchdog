@@ -31,25 +31,24 @@ struct Heartbeat {
 
 
     Heartbeat() :
-            m_NormalLimit( 0 ),
-            m_AbsoluteLimit( 0 ),
+            m_NormalLimit(0),
+            m_AbsoluteLimit(0),
             m_Beat(),
             m_Info(),
-            m_CRC( 0 ) {}
+            m_CRC(0) {}
 
 
-    static void SetCRC( Heartbeat &heartbeat );
-    static bool isCRCOK( const Heartbeat &heartbeat );
-    static std::string makeActualName(const std::string &procName, const std::string &threadName);
-    static std::string extractUserName( const std::string &actualName );
-    static std::string extractProcName( const std::string &actualName );
-    static std::string extractThreadName( const std::string &actualName );
-    static pid_t extractProcessID( const std::string &actualName );
-    static pid_t extractThreadID( const std::string &actualName );
-    static bool isHeartbeat( const std::string &name );
-    static uint32_t calcCRC( const Heartbeat &heartbeat );
+    static void SetCRC(Heartbeat &heartbeat);
+    static bool isCRCOK(const Heartbeat &heartbeat);
+    static std::string makeActualName(const std::string &processName, const std::string &threadName);
+    static std::string extractUserName(const std::string &actualName);
+    static std::string extractProcessName(const std::string &actualName);
+    static std::string extractThreadName(const std::string &actualName);
+    static pid_t extractProcessID(const std::string &actualName);
+    static pid_t extractThreadID(const std::string &actualName);
+    static bool isHeartbeat(const std::string &name);
+    static uint32_t calcCRC(const Heartbeat &heartbeat);
     static TTickCount tickCountNow();
-
     static std::string heartbeatEventName(HeartbeatEvent event);
 };
 

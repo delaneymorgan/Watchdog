@@ -26,14 +26,14 @@ class InvalidHeartbeatName :
 
 class PaceMaker {
 public:
-    PaceMaker(const std::string &procName, const std::string &threadName, boost::chrono::milliseconds normalLimit,
+    PaceMaker(const std::string &processName, const std::string &threadName, boost::chrono::milliseconds normalLimit,
               boost::chrono::milliseconds absoluteLimit);
     virtual ~PaceMaker();
 
-    void pulse(int info=0);
+    void pulse(int info = 0);
 
 private:
-    const std::string m_ProcName;
+    const std::string m_ProcessName;
     const std::string m_ThreadName;
     const std::string m_ActualName;
     boost::chrono::milliseconds m_NormalLimit;

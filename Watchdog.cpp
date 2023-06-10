@@ -44,9 +44,9 @@ Watchdog::~Watchdog() {
  *
  * @param event the watchdog event
  */
-void Watchdog::doCallbacks(const WatchdogEvent& event) {
+void Watchdog::doCallbacks(const WatchdogEvent &event) {
     m_CallBack(event, m_Verbose);
-    std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(event.procName());
+    std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(event.processName());
     if (policy != m_Policies.end()) {
         (*policy).second->handleEvent(event, m_Verbose);
     }
@@ -78,7 +78,7 @@ void Watchdog::monitor() {
                 if (normalLimit < smallestHB) {
                     smallestHB = normalLimit;
                 }
-                std::string procName = Heartbeat::extractProcName(ekg->actualName());
+                std::string processName = Heartbeat::extractProcessName(ekg->actualName());
                 std::string isAlive = ekg->isAlive() ? "alive" : "dead";
                 std::string isNormal = ekg->isNormal() ? "normal" : "warning";
                 if (!ekg->isAlive()) {
@@ -203,7 +203,8 @@ Watchdog::compareAgainstEKGs(boost::container::flat_set<std::string> &candidateH
                 // this is a new heartbeat and the process behind it exists - start managing it
                 boost::shared_ptr<EKG> ekg(new EKG(actualName));
                 m_Heartbeats[actualName] = ekg;
-                WatchdogEvent wdEvent(actualName, processID, threadID, Started_HeartbeatEvent, boost::chrono::milliseconds(0));
+                WatchdogEvent wdEvent(actualName, processID, threadID, Started_HeartbeatEvent,
+                                      boost::chrono::milliseconds(0));
                 doCallbacks(wdEvent);
             }
         } else {
@@ -224,11 +225,11 @@ std::map<std::string, TProcInfo> Watchdog::getDeadProcs(boost::container::flat_s
     std::map<std::string, TProcInfo> deadProcs;
     for (boost::container::flat_set<std::string>::iterator it = deadPIDs.begin(); it != deadPIDs.end(); it++) {
         std::string actualName = *it;
-        std::string procName = Heartbeat::extractProcName(actualName);
+        std::string processName = Heartbeat::extractProcessName(actualName);
         TProcInfo procInfo;
-        procInfo.m_ProcID = Heartbeat::extractProcessID(actualName);
+        procInfo.m_ProcessID = Heartbeat::extractProcessID(actualName);
         procInfo.m_ActualName = actualName;
-        deadProcs[procName] = procInfo;
+        deadProcs[processName] = procInfo;
     }
     return deadProcs;
 }
@@ -240,11 +241,11 @@ std::map<std::string, TProcInfo> Watchdog::getDeadProcs(boost::container::flat_s
  */
 void Watchdog::notifyStakeholders(std::map<std::string, TProcInfo> &deadProcs) {
     for (std::map<std::string, TProcInfo>::iterator it = deadProcs.begin(); it != deadProcs.end(); it++) {
-        std::string procName = (*it).first;
+        std::string processName = (*it).first;
         TProcInfo procInfo = (*it).second;
         if (m_Heartbeats.find(procInfo.m_ActualName) != m_Heartbeats.end()) {
             // we were already managing this heartbeat - notify next of kin and remove it from our list
-            WatchdogEvent wdEvent(procInfo.m_ActualName, procInfo.m_ProcID, 0, Dead_HeartbeatEvent,
+            WatchdogEvent wdEvent(procInfo.m_ActualName, procInfo.m_ProcessID, 0, Dead_HeartbeatEvent,
                                   boost::chrono::milliseconds(0));
             doCallbacks(wdEvent);
             m_Heartbeats.erase(procInfo.m_ActualName);     // stop managing this heartbeat

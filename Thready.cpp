@@ -20,10 +20,10 @@
 #define QUOTE(x) #x
 
 
-Thready::Thready(const std::string &procName, unsigned int id, boost::chrono::milliseconds normalLimit,
+Thready::Thready(const std::string &processName, unsigned int id, boost::chrono::milliseconds normalLimit,
                  boost::chrono::milliseconds absoluteLimit, bool tamper, bool verbose)
         :
-        m_ProcName(procName),
+        m_ProcessName(processName),
         m_Running(true),
         m_Tamper(tamper),
         m_Verbose(verbose),
@@ -44,7 +44,7 @@ Thready::~Thready() {
 void Thready::run() {
     typedef boost::mt19937 TRNG;
     // create pacemaker here to get thread id
-    m_PaceMaker = boost::shared_ptr<PaceMaker>(new PaceMaker(m_ProcName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
+    m_PaceMaker = boost::shared_ptr<PaceMaker>(new PaceMaker(m_ProcessName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
     while (m_Running) {
         m_PaceMaker->pulse(Happy_ThreadyState);     // optionally indicate client's internal state with info param
         std::stringstream oss;

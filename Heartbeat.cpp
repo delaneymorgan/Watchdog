@@ -42,11 +42,11 @@ bool Heartbeat::isCRCOK(const Heartbeat &heartbeat) {
     return false;
 }
 
-std::string Heartbeat::makeActualName(const std::string &procName, const std::string &threadName) {
+std::string Heartbeat::makeActualName(const std::string &processName, const std::string &threadName) {
     std::stringstream oss;
     pid_t processID = getpid();
     pid_t threadID = gettid();
-    oss << HEARTBEAT_PREFIX << procName << ":" << threadName << "." << processID << "." << threadID;
+    oss << HEARTBEAT_PREFIX << processName << ":" << threadName << "." << processID << "." << threadID;
     return oss.str();
 }
 
@@ -56,7 +56,7 @@ std::string Heartbeat::extractUserName(const std::string &actualName) {
     return parts[1];
 }
 
-std::string Heartbeat::extractProcName(const std::string &actualName) {
+std::string Heartbeat::extractProcessName(const std::string &actualName) {
     std::string userName = extractUserName(actualName);
     std::vector<std::string> parts;
     boost::split(parts, userName, boost::is_any_of(":"));

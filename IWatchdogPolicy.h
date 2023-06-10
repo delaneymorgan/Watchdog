@@ -23,7 +23,7 @@ public:
     virtual ~IWatchdogPolicy();
 
     std::string processName() const;
-    virtual void handleEvent(const WatchdogEvent& event, bool verbose) = 0;
+    virtual void handleEvent(const WatchdogEvent &event, bool verbose) = 0;
 
 protected:
     std::string m_ProcessName;

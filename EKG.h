@@ -24,14 +24,13 @@ class CorruptHeartbeat :
 
 class EKG {
 public:
-    explicit EKG( const std::string &actualName );
+    explicit EKG(const std::string &actualName);
     virtual ~EKG();
 
     bool isAlive();
     bool isNormal();
     boost::chrono::milliseconds length();
     int info();
-
     std::string actualName();
     boost::chrono::milliseconds normalLimit();
     pid_t processID() const;

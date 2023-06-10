@@ -27,11 +27,11 @@
 namespace {
 
     struct TProcInfo {
-        pid_t m_ProcID;
+        pid_t m_ProcessID;
         std::string m_ActualName;
 
         TProcInfo() :
-                m_ProcID(),
+                m_ProcessID(),
                 m_ActualName() {
         }
     };
@@ -54,13 +54,18 @@ public:
 
 private:
     void scanHeartbeats();
-    void doCallbacks(const WatchdogEvent& event);
+    void doCallbacks(const WatchdogEvent &event);
     void doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event);
+
     boost::container::flat_set<std::string>
     static extractCandidateHBs(const std::vector<boost::filesystem::directory_entry> &dirList);
+
     boost::container::flat_set<std::string> compareAgainstEKGs(boost::container::flat_set<std::string> &candidateHBs);
+
     static std::map<std::string, TProcInfo> getDeadProcs(boost::container::flat_set<std::string> &deadPIDs);
+
     void notifyStakeholders(std::map<std::string, TProcInfo> &deadProcs);
+
     void cleanHeartbeats(boost::container::flat_set<std::string> &deadPIDs);
 
     std::map<std::string, boost::shared_ptr<EKG> > m_Heartbeats;

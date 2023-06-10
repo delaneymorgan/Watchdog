@@ -25,7 +25,6 @@ ThreadyMainWatchdogPolicy::~ThreadyMainWatchdogPolicy() {
 /**
  * a policy-specifc callback for handling Watchdog events, just for this application
  *
- * @param actualName the name of the heartbeat in shared memory
  * @param event the Watchdog event
  * @param verbose true => versbose, false => otherwise
  */
@@ -36,8 +35,8 @@ void ThreadyMainWatchdogPolicy::handleEvent(const WatchdogEvent &event, bool ver
         case Started_HeartbeatEvent:
             if (verbose) {
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat started: " <<
-                          event.procName() << ":" <<
-                          event.threadName() << " - " << event.procID() << "/" <<
+                          event.processName() << ":" <<
+                          event.threadName() << " - " << event.processID() << "/" <<
                           event.threadID() << std::endl;
             }
             break;
@@ -45,8 +44,8 @@ void ThreadyMainWatchdogPolicy::handleEvent(const WatchdogEvent &event, bool ver
         case Slow_HeartbeatEvent:
             if (verbose) {
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat slow: " <<
-                          event.procName() << ":" <<
-                          event.threadName() << " - " << event.procID() << "/" <<
+                          event.processName() << ":" <<
+                          event.threadName() << " - " << event.processID() << "/" <<
                           event.threadID() << " (" << threadyStateName(ThreadyState(event.info())) << ") = " <<
                           event.hbLength().count() << " mSec" << std::endl;
             }
@@ -57,8 +56,8 @@ void ThreadyMainWatchdogPolicy::handleEvent(const WatchdogEvent &event, bool ver
         case Hung_HeartbeatEvent:
             if (verbose) {
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) << ": Heartbeat hung: " <<
-                          event.procName() << ":" <<
-                          event.threadName() << " - " << event.procID() << "/" <<
+                          event.processName() << ":" <<
+                          event.threadName() << " - " << event.processID() << "/" <<
                           event.threadID() << " (" << threadyStateName(ThreadyState(event.info())) << ") = " <<
                           event.hbLength().count() << " mSec" << std::endl;
             }
@@ -67,7 +66,7 @@ void ThreadyMainWatchdogPolicy::handleEvent(const WatchdogEvent &event, bool ver
         case Dead_HeartbeatEvent:
             if (verbose) {
                 std::cout << QUOTE(ThreadyMainWatchdogPolicy) <<
-                          ": Process died: " << event.procName() << " - " << event.procID() << std::endl;
+                          ": Process died: " << event.processName() << " - " << event.processID() << std::endl;
             }
             break;
 
