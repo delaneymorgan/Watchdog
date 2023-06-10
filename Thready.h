@@ -19,13 +19,15 @@
 
 class Thready {
 public:
-    Thready(const std::string &procName, unsigned int id, boost::chrono::milliseconds normalLimit,
+    Thready(const std::string &processName, unsigned int id, boost::chrono::milliseconds normalLimit,
             boost::chrono::milliseconds absoluteLimit, bool tamper, bool verbose);
     virtual ~Thready();
+
     void run();
     void quiesce();
+
 private:
-    std::string m_ProcName;
+    std::string m_ProcessName;
     std::string m_ThreadName;
     bool m_Running;
     bool m_Tamper;

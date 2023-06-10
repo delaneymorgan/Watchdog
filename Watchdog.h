@@ -27,11 +27,11 @@
 namespace {
 
     struct TProcInfo {
-        pid_t m_ProcID;
+        pid_t m_ProcessID;
         std::string m_ActualName;
 
         TProcInfo() :
-                m_ProcID(),
+                m_ProcessID(),
                 m_ActualName() {
         }
     };
@@ -47,23 +47,25 @@ public:
     Watchdog(boost::chrono::milliseconds scanPeriod, bool autoScan = false, bool verbose = false);
     virtual ~Watchdog();
 
-    void setCallback(
-            const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent, boost::chrono::milliseconds,
-                                       bool)> &);
+    void setCallback(const boost::function<void(WatchdogEvent, bool)> &);
     void setPolicy(const boost::shared_ptr<IWatchdogPolicy> &policy);
     void monitor();
     void quiesce();
 
 private:
     void scanHeartbeats();
-    void doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                     boost::chrono::milliseconds hbLength);
+    void doCallbacks(const WatchdogEvent &event);
     void doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event);
+
     boost::container::flat_set<std::string>
     static extractCandidateHBs(const std::vector<boost::filesystem::directory_entry> &dirList);
+
     boost::container::flat_set<std::string> compareAgainstEKGs(boost::container::flat_set<std::string> &candidateHBs);
+
     static std::map<std::string, TProcInfo> getDeadProcs(boost::container::flat_set<std::string> &deadPIDs);
+
     void notifyStakeholders(std::map<std::string, TProcInfo> &deadProcs);
+
     void cleanHeartbeats(boost::container::flat_set<std::string> &deadPIDs);
 
     std::map<std::string, boost::shared_ptr<EKG> > m_Heartbeats;
@@ -72,7 +74,7 @@ private:
     bool m_AutoScan;
     bool m_Verbose;
     boost::chrono::milliseconds m_ScanPeriod;
-    boost::function<void(std::string, pid_t, pid_t, HeartbeatEvent, boost::chrono::milliseconds, bool)> m_CallBack;
+    boost::function<void(WatchdogEvent, bool)> m_CallBack;
 };
 
 

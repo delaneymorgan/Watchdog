@@ -32,38 +32,36 @@ void signal_handler(int sig) {
  * a global callback for Watchdog - all events will be reported here,
  * as well as the policy-specific callbacks.
  *
- * @param actualName the full processName of the heartbeat
- * @param processID the process id of the monitored process
- * @param threadID the thread id within the monitored process
- * @param event - event description
- * @param hbLength the length of the heartbeat that triggered the event
+ * @param event the Watchdog event
  * @param verbose true => verbose, false => quiet
  */
-void callBack(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-              boost::chrono::milliseconds hbLength, bool verbose) {
-    std::string eventName = Heartbeat::heartbeatEventName(event);
+void callBack(const WatchdogEvent& event, bool verbose) {
+    std::string eventName = Heartbeat::heartbeatEventName(event.event());
     if (verbose) {
-        switch (event) {
+        switch (event.event()) {
             case Started_HeartbeatEvent:
-                std::cout << "Heartbeat started: " << Heartbeat::extractProcName(actualName) <<
-                          ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                          threadID << std::endl;
+                std::cout << "Heartbeat started: " << event.processName() <<
+                          ":" << event.threadName() << " - " << event.processID() << "/" <<
+                          event.threadID() << std::endl;
                 break;
 
             case Slow_HeartbeatEvent:
-                std::cout << "Heartbeat slow: " << Heartbeat::extractProcName(actualName) <<
-                          ":" << Heartbeat::extractThreadName(actualName) << " - " << processID << "/" <<
-                          threadID << " = " << hbLength.count() << " mSec" << std::endl;
+                std::cout << "Heartbeat slow: " << event.processName() <<
+                          ":" << event.threadName() << " - " << event.processID() << "/" <<
+                          event.threadID() << " (" << event.info() << ") = " << event.hbLength().count() << " mSec"
+                          << std::endl;
                 break;
 
             case Hung_HeartbeatEvent:
-                std::cout << "Process hung: " << Heartbeat::extractProcName(actualName) << " - " << processID
+                std::cout << "Heartbeat hung: " << event.processName() <<
+                          ":" << event.threadName() << " - " << event.processID() << "/" <<
+                          event.threadID() << " (" << event.info() << ") = " << event.hbLength().count() << " mSec"
                           << std::endl;
                 break;
 
             case Dead_HeartbeatEvent:
-                std::cout << "Process died: " << Heartbeat::extractProcName(actualName) <<
-                          " - " << processID << std::endl;
+                std::cout << "Process died: " << event.processName() <<
+                          " - " << event.processID() << std::endl;
                 break;
 
             default:
