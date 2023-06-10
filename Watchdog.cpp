@@ -42,20 +42,13 @@ Watchdog::~Watchdog() {
 /**
  * perform callbacks, both the global callback and any specific policy callback
  *
- * @param actualName the heartbeat's name in shared memory
- * @param processID the heartbeat's process id
- * @param threadID the heartbeat's thread id (0 => no thread)
- * @param event the heartbeat event type
- * @param hbLength the duration since the heartbeat's last pulse
- * @param info optional client state during this event
+ * @param event the watchdog event
  */
-void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                           boost::chrono::milliseconds hbLength, int info) {
-    std::string procName = Heartbeat::extractProcName(actualName);
-    m_CallBack(actualName, processID, threadID, event, hbLength, info, m_Verbose);
-    std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(procName);
+void Watchdog::doCallbacks(const WatchdogEvent& event) {
+    m_CallBack(event, m_Verbose);
+    std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(event.procName());
     if (policy != m_Policies.end()) {
-        (*policy).second->handleEvent(actualName, processID, threadID, event, hbLength, info, m_Verbose);
+        (*policy).second->handleEvent(event, m_Verbose);
     }
 }
 
@@ -66,8 +59,9 @@ void Watchdog::doCallbacks(std::string &actualName, pid_t processID, pid_t threa
  * @param event the event type
  */
 void Watchdog::doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event) {
-    std::string actualName = ekg->actualName();
-    doCallbacks(actualName, ekg->processID(), ekg->threadID(), event, ekg->length(), ekg->info());
+    WatchdogEvent wdevent(ekg->actualName(), ekg->processID(), ekg->threadID(), event,
+                          ekg->length(), ekg->info());
+    doCallbacks(wdevent);
 }
 
 /**
@@ -120,8 +114,7 @@ void Watchdog::monitor() {
  * set the global callback for the watchdog
  * @param _f the callback function
  */
-void Watchdog::setCallback(const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent,
-                                                      boost::chrono::milliseconds, int, bool)> &_f) {
+void Watchdog::setCallback(const boost::function<void(WatchdogEvent, bool)> &_f) {
     m_CallBack = _f;
 }
 
@@ -210,7 +203,8 @@ Watchdog::compareAgainstEKGs(boost::container::flat_set<std::string> &candidateH
                 // this is a new heartbeat and the process behind it exists - start managing it
                 boost::shared_ptr<EKG> ekg(new EKG(actualName));
                 m_Heartbeats[actualName] = ekg;
-                doCallbacks(actualName, processID, threadID, Started_HeartbeatEvent, boost::chrono::milliseconds(0));
+                WatchdogEvent wdEvent(actualName, processID, threadID, Started_HeartbeatEvent, boost::chrono::milliseconds(0));
+                doCallbacks(wdEvent);
             }
         } else {
             // apparently our process has died. Mark it for next of kin notification
@@ -250,8 +244,9 @@ void Watchdog::notifyStakeholders(std::map<std::string, TProcInfo> &deadProcs) {
         TProcInfo procInfo = (*it).second;
         if (m_Heartbeats.find(procInfo.m_ActualName) != m_Heartbeats.end()) {
             // we were already managing this heartbeat - notify next of kin and remove it from our list
-            doCallbacks(procInfo.m_ActualName, procInfo.m_ProcID, 0, Dead_HeartbeatEvent,
-                        boost::chrono::milliseconds(0));
+            WatchdogEvent wdEvent(procInfo.m_ActualName, procInfo.m_ProcID, 0, Dead_HeartbeatEvent,
+                                  boost::chrono::milliseconds(0));
+            doCallbacks(wdEvent);
             m_Heartbeats.erase(procInfo.m_ActualName);     // stop managing this heartbeat
         } else {
             // Not known to us.  Whatever it was, it's dead now - delete the remnant heartbeat

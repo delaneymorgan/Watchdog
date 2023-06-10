@@ -14,6 +14,7 @@
 #include <boost/chrono.hpp>
 
 #include "Heartbeat.h"
+#include "WatchdogEvent.h"
 
 
 class IWatchdogPolicy {
@@ -22,8 +23,7 @@ public:
     virtual ~IWatchdogPolicy();
 
     std::string processName() const;
-    virtual void handleEvent(std::basic_string<char> actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                             boost::chrono::milliseconds hbLength, int info, bool verbose) = 0;
+    virtual void handleEvent(const WatchdogEvent& event, bool verbose) = 0;
 
 protected:
     std::string m_ProcessName;

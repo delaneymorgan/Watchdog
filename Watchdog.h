@@ -47,17 +47,14 @@ public:
     Watchdog(boost::chrono::milliseconds scanPeriod, bool autoScan = false, bool verbose = false);
     virtual ~Watchdog();
 
-    void setCallback(
-            const boost::function<void(std::string &, pid_t, pid_t, HeartbeatEvent, boost::chrono::milliseconds,
-                                       int, bool)> &);
+    void setCallback(const boost::function<void(WatchdogEvent, bool)> &);
     void setPolicy(const boost::shared_ptr<IWatchdogPolicy> &policy);
     void monitor();
     void quiesce();
 
 private:
     void scanHeartbeats();
-    void doCallbacks(std::string &actualName, pid_t processID, pid_t threadID, HeartbeatEvent event,
-                     boost::chrono::milliseconds hbLength, int info=0);
+    void doCallbacks(const WatchdogEvent& event);
     void doCallbacks(const boost::shared_ptr<EKG> &ekg, HeartbeatEvent event);
     boost::container::flat_set<std::string>
     static extractCandidateHBs(const std::vector<boost::filesystem::directory_entry> &dirList);
@@ -72,7 +69,7 @@ private:
     bool m_AutoScan;
     bool m_Verbose;
     boost::chrono::milliseconds m_ScanPeriod;
-    boost::function<void(std::string, pid_t, pid_t, HeartbeatEvent, boost::chrono::milliseconds, int, bool)> m_CallBack;
+    boost::function<void(WatchdogEvent, bool)> m_CallBack;
 };
 
 

@@ -16,7 +16,7 @@ add_executable(WatchdogMain
         IWatchdogPolicy.cpp
         IWatchdogPolicy.h
         ThreadyMainWatchdogPolicy.cpp
-        ThreadyMainWatchdogPolicy.h macros.h ThreadyState.h ThreadyState.cpp)
+        ThreadyMainWatchdogPolicy.h macros.h ThreadyState.h ThreadyState.cpp WatchdogEvent.cpp WatchdogEvent.h)
 
 target_link_libraries(WatchdogMain
         ${Boost_FILESYSTEM_LIBRARY}
