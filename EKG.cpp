@@ -18,13 +18,13 @@
 using namespace boost::interprocess;
 
 
-EKG::EKG( const std::string &actualName ) :
-        m_ActualName( actualName ),
-        m_ProcessID( getpid()),
-        m_ThreadID( gettid()) {
+EKG::EKG(const std::string &actualName) :
+        m_ActualName(actualName),
+        m_ProcessID(getpid()),
+        m_ThreadID(gettid()) {
     shared_memory_object shm;
-    shm = shared_memory_object( open_only, m_ActualName.c_str(), boost::interprocess::read_only );
-    m_Region = mapped_region( shm, boost::interprocess::read_only );
+    shm = shared_memory_object(open_only, m_ActualName.c_str(), boost::interprocess::read_only);
+    m_Region = mapped_region(shm, boost::interprocess::read_only);
 }
 
 
@@ -38,8 +38,9 @@ bool EKG::isAlive() {
     bool ret = false;
     Heartbeat beat;
     TMSec duration = length();
-    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
-    if ( duration <= beat.m_AbsoluteLimit ) {
+    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(),
+                std::min(sizeof(beat), m_Region.get_size()));
+    if (duration <= beat.m_AbsoluteLimit) {
         ret = true;
     }
     return ret;
@@ -51,8 +52,8 @@ bool EKG::isNormal() {
     bool ret = false;
     TMSec duration = length();
     Heartbeat beat;
-    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
-    if ( duration <= beat.m_NormalLimit ) {
+    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    if (duration <= beat.m_NormalLimit) {
         ret = true;
     }
     return ret;
@@ -60,7 +61,7 @@ bool EKG::isNormal() {
 
 int EKG::info() {
     Heartbeat beat;
-    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
     return beat.m_Info;
 }
 
@@ -72,7 +73,7 @@ std::string EKG::actualName() {
 
 boost::chrono::milliseconds EKG::normalLimit() {
     Heartbeat beat;
-    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
     return beat.m_NormalLimit;
 }
 
@@ -91,16 +92,16 @@ boost::chrono::milliseconds EKG::length() {
     typedef boost::chrono::milliseconds TMSec;
     Heartbeat beat;
     TTickCount timeNow = Heartbeat::tickCountNow();
-    std::memcpy( reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
-    if ( !Heartbeat::isCRCOK( beat )) {
+    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    if (!Heartbeat::isCRCOK(beat)) {
         throw CorruptHeartbeat();
     }
     TMSec hbLength;
     if (timeNow >= beat.m_Beat) {
-        hbLength = TMSec(timeNow) - TMSec (beat.m_Beat);
+        hbLength = TMSec(timeNow) - TMSec(beat.m_Beat);
     } else {
         // tick count has wrapped around zero
-        hbLength = TMSec (timeNow) - TMSec(static_cast<int64_t>(beat.m_Beat));
+        hbLength = TMSec(timeNow) - TMSec(static_cast<int64_t>(beat.m_Beat));
     }
     return hbLength;
 }

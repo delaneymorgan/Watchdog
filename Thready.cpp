@@ -46,7 +46,7 @@ void Thready::run() {
     // create pacemaker here to get thread id
     m_PaceMaker = boost::shared_ptr<PaceMaker>(new PaceMaker(m_ProcName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
     while (m_Running) {
-        m_PaceMaker->pulse(Happy_ThreadyState);
+        m_PaceMaker->pulse(Happy_ThreadyState);     // optionally indicate client's internal state with info param
         std::stringstream oss;
         if (m_Verbose) {
             oss << m_ThreadName << " beating" << std::endl;
