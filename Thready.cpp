@@ -44,7 +44,8 @@ Thready::~Thready() {
 void Thready::run() {
     typedef boost::mt19937 TRNG;
     // create pacemaker here to get thread id
-    m_PaceMaker = boost::shared_ptr<PaceMaker>(new PaceMaker(m_ProcessName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
+    m_PaceMaker = boost::shared_ptr<PaceMaker>(
+            new PaceMaker(m_ProcessName, m_ThreadName, m_NormalLimit, m_AbsoluteLimit));
     while (m_Running) {
         m_PaceMaker->pulse(Happy_ThreadyState);     // optionally indicate client's internal state with info param
         std::stringstream oss;
@@ -66,6 +67,11 @@ void Thready::run() {
 }
 
 
+void Thready::start() {
+    m_Thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Thready::run, this)));
+}
+
 void Thready::quiesce() {
     m_Running = false;
+    m_Thread->join();
 }

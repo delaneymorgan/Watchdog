@@ -73,15 +73,12 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, signal_handler);
     po::variables_map args = Usage(argc, argv);
     std::vector<boost::shared_ptr<Thready> > threadys;
-    std::vector<boost::shared_ptr<boost::thread> > threads;
     unsigned int numThreads = args["num"].as<unsigned int>();
     for (int threadNo = 0; threadNo < numThreads; threadNo++) {
         boost::shared_ptr<Thready> newThready(new Thready("ThreadyMain", threadNo, NORMAL_LIMIT, ABSOLUTE_LIMIT,
                                                           args.count("tamper"), args.count("verbose")));
-        boost::shared_ptr<boost::thread> thr = boost::shared_ptr<boost::thread>(
-                new boost::thread(boost::bind(&Thready::run, newThready)));
         threadys.push_back(newThready);
-        threads.push_back(thr);
+        newThready->start();
     }
     while (gRunning) {
         if (args.count("verbose")) {
@@ -91,9 +88,6 @@ int main(int argc, char *argv[]) {
     }
     for (TThreadysIterator it = threadys.begin(); it != threadys.end(); it++) {
         (*it)->quiesce();
-    }
-    for (std::vector<boost::shared_ptr<boost::thread> >::iterator it = threads.begin(); it != threads.end(); it++) {
-        (*it)->join();
     }
     std::cout << std::endl << "Finished!" << std::endl;
 }
