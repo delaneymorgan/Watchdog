@@ -1,0 +1,51 @@
+@startuml
+class ThreadyMain
+class Thready {
+-void run()
+-string m_ProcessName
+-string m_ThreadName
+-bool m_Running
+-bool m_Tamper
+-bool m_Verbose
+-PaceMaker m_PaceMaker
+-milliseconds m_NormalLimit
+-milliseconds m_AbsoluteLimit
+-thread m_Thread
+
++Thready( processName, id, normalLimit, absoluteLimit, tamper, verbose)
++void start()
++void quiesce()
+}
+class PaceMaker {
+-string m_ProcessName
+-string m_ThreadName
+-string m_ActualName
+-milliseconds m_NormalLimit
+-milliseconds m_AbsoluteLimit
+-mutex m_BeatMutex
+-mapped_region m_Region
+
++PaceMaker( processName, threadName, normalLimit, absoluteLimit)
++void pulse()
+}
+class Heartbeat {
++milliseconds m_NormalLimit
++milliseconds m_AbsoluteLimit
++TTickCount m_Beat
+
++void SetCRC( heartbeat)
++bool isCRCOK( heartbeat)
++string makeActualName( processName, threadName)
++string extractUserName( actualName)
++string extractProcessName( actualName)
++string extractThreadName( actualName)
++pid_t extractProcessID( actualName)
++pid_t extractThreadID( actualName)
++bool isHeartbeat( name)
++utin32)t calcCRC( heartbeat)
++TTickCount tickCountNow()
+}
+ThreadyMain "1" *-- "n" Thready
+Thready "1" *-- "1" PaceMaker
+PaceMaker "1" *-- "1" Heartbeat
+@enduml
