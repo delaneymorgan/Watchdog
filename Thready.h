@@ -23,10 +23,12 @@ public:
             boost::chrono::milliseconds absoluteLimit, bool tamper, bool verbose);
     virtual ~Thready();
 
-    void run();
+    void start();
     void quiesce();
 
 private:
+    void run();
+
     std::string m_ProcessName;
     std::string m_ThreadName;
     bool m_Running;
@@ -35,6 +37,7 @@ private:
     boost::shared_ptr<PaceMaker> m_PaceMaker;
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;
+    boost::shared_ptr<boost::thread> m_Thread;
 };
 
 
