@@ -29,7 +29,8 @@ Thready::Thready(const std::string &processName, unsigned int id, boost::chrono:
         m_Verbose(verbose),
         m_PaceMaker(),
         m_NormalLimit(normalLimit),
-        m_AbsoluteLimit(absoluteLimit) {
+        m_AbsoluteLimit(absoluteLimit),
+        m_Thread() {
     std::stringstream oss;
     oss << QUOTE(Thready) << "-" << id;
     m_ThreadName = oss.str();
@@ -37,7 +38,9 @@ Thready::Thready(const std::string &processName, unsigned int id, boost::chrono:
 
 
 Thready::~Thready() {
-
+    if (m_Thread) {
+        m_Thread->join();
+    }
 }
 
 
@@ -73,5 +76,4 @@ void Thready::start() {
 
 void Thready::quiesce() {
     m_Running = false;
-    m_Thread->join();
 }
