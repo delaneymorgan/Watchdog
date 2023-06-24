@@ -9,11 +9,11 @@
 #ifndef WATCHDOG_EKG_H
 #define WATCHDOG_EKG_H
 
+#include "SharedMemory.h"
 
 #include <exception>
 #include <string>
 
-#include <boost/interprocess/mapped_region.hpp>
 #include <boost/chrono.hpp>
 
 
@@ -40,7 +40,7 @@ private:
     const std::string m_ActualName;     // the name of the region as it appears in /dev/shm
     pid_t m_ProcessID;  // the heartbeat's process id
     pid_t m_ThreadID;   // the heartbeat's thread id
-    boost::interprocess::mapped_region m_Region;    // the actual region in shared memory for this heartbeat
+    SharedMemory m_SharedMemory;    // the shared memory object for this heartbeat
 };
 
 #endif //WATCHDOG_EKG_H

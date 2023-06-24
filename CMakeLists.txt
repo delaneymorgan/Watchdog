@@ -16,7 +16,7 @@ add_executable(WatchdogMain
         IWatchdogPolicy.cpp
         IWatchdogPolicy.h
         ThreadyMainWatchdogPolicy.cpp
-        ThreadyMainWatchdogPolicy.h macros.h ThreadyState.h ThreadyState.cpp WatchdogEvent.cpp WatchdogEvent.h)
+        ThreadyMainWatchdogPolicy.h macros.h ThreadyState.h ThreadyState.cpp WatchdogEvent.cpp WatchdogEvent.h SharedMemory.cpp SharedMemory.h)
 
 target_link_libraries(WatchdogMain
         ${Boost_FILESYSTEM_LIBRARY}
@@ -33,7 +33,7 @@ add_executable(ThreadyMain
         Thready.cpp
         Thready.h
         PaceMaker.h
-        PaceMaker.cpp ThreadyState.h ThreadyState.cpp)
+        PaceMaker.cpp ThreadyState.h ThreadyState.cpp SharedMemory.cpp SharedMemory.h)
 
 target_link_libraries(ThreadyMain
         ${Boost_FILESYSTEM_LIBRARY}

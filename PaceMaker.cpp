@@ -10,7 +10,6 @@
 
 #include <stdexcept>
 
-#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/chrono/duration.hpp>
 
 #include "Heartbeat.h"
@@ -26,18 +25,12 @@ PaceMaker::PaceMaker(const std::string &processName, const std::string &threadNa
         m_ThreadName(threadName),
         m_ActualName(Heartbeat::makeActualName(processName, threadName)),
         m_NormalLimit(normalLimit),
-        m_AbsoluteLimit(absoluteLimit) {
+        m_AbsoluteLimit(absoluteLimit),
+        m_SharedMemory(m_ActualName, sizeof(Heartbeat)) {
     if (!Heartbeat::isHeartbeat(m_ActualName)) {
         throw InvalidHeartbeatName();
     }
-    shared_memory_object shm;
-    shm = shared_memory_object(open_or_create, m_ActualName.c_str(), read_write);
-    Heartbeat beat;
-    beat.m_NormalLimit = m_NormalLimit;
-    beat.m_AbsoluteLimit = m_AbsoluteLimit;
-    shm.truncate(sizeof(beat));
-    m_Region = mapped_region(shm, read_write);
-    std::memcpy(m_Region.get_address(), reinterpret_cast<char *>(&beat), m_Region.get_size());
+    pulse();
 }
 
 
@@ -56,7 +49,7 @@ void PaceMaker::pulse(int info) {
     beat.m_Beat = Heartbeat::tickCountNow();
     beat.m_Info = info;
     Heartbeat::SetCRC(beat);
-    std::memcpy(m_Region.get_address(), reinterpret_cast<char *>( &beat), m_Region.get_size());
+    m_SharedMemory.write(&beat, sizeof(beat));
 }
 
 

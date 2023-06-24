@@ -8,6 +8,8 @@
 
 #include "Watchdog.h"
 
+#include "SharedMemory.h"
+
 #include <iostream>
 #include <csignal>
 
@@ -272,7 +274,7 @@ void Watchdog::cleanHeartbeats(boost::container::flat_set<std::string> &deadPIDs
             m_Heartbeats.erase(actualName);     // stop managing this heartbeat
         } else {
             // Not known to us.  Whatever it was, it's dead now - delete the remnant heartbeat
-            boost::interprocess::shared_memory_object::remove(actualName.c_str());
+            SharedMemory::remove(actualName);
         }
     }
 }

@@ -21,10 +21,8 @@ using namespace boost::interprocess;
 EKG::EKG(const std::string &actualName) :
         m_ActualName(actualName),
         m_ProcessID(getpid()),
-        m_ThreadID(gettid()) {
-    shared_memory_object shm;
-    shm = shared_memory_object(open_only, m_ActualName.c_str(), boost::interprocess::read_only);
-    m_Region = mapped_region(shm, boost::interprocess::read_only);
+        m_ThreadID(gettid()),
+        m_SharedMemory(m_ActualName) {
 }
 
 
@@ -38,8 +36,7 @@ bool EKG::isAlive() {
     bool ret = false;
     Heartbeat beat;
     TMSec duration = length();
-    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(),
-                std::min(sizeof(beat), m_Region.get_size()));
+    m_SharedMemory.read(&beat, sizeof(beat));
     if (duration <= beat.m_AbsoluteLimit) {
         ret = true;
     }
@@ -52,7 +49,7 @@ bool EKG::isNormal() {
     bool ret = false;
     TMSec duration = length();
     Heartbeat beat;
-    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    m_SharedMemory.read(&beat, sizeof(beat));
     if (duration <= beat.m_NormalLimit) {
         ret = true;
     }
@@ -61,7 +58,7 @@ bool EKG::isNormal() {
 
 int EKG::info() {
     Heartbeat beat;
-    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    m_SharedMemory.read(&beat, sizeof(beat));
     return beat.m_Info;
 }
 
@@ -73,7 +70,7 @@ std::string EKG::actualName() {
 
 boost::chrono::milliseconds EKG::normalLimit() {
     Heartbeat beat;
-    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    m_SharedMemory.read(&beat, sizeof(beat));
     return beat.m_NormalLimit;
 }
 
@@ -92,7 +89,7 @@ boost::chrono::milliseconds EKG::length() {
     typedef boost::chrono::milliseconds TMSec;
     Heartbeat beat;
     TTickCount timeNow = Heartbeat::tickCountNow();
-    std::memcpy(reinterpret_cast<char *>(&beat), m_Region.get_address(), m_Region.get_size());
+    m_SharedMemory.read(&beat, sizeof(beat));
     if (!Heartbeat::isCRCOK(beat)) {
         throw CorruptHeartbeat();
     }

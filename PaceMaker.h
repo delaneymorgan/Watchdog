@@ -9,12 +9,12 @@
 #ifndef WATCHDOG_PACEMAKER_H
 #define WATCHDOG_PACEMAKER_H
 
+#include "SharedMemory.h"
 
 #include <string>
 
 #include <boost/chrono.hpp>
 #include <boost/thread.hpp>
-#include <boost/interprocess/mapped_region.hpp>
 #include <boost/chrono/duration.hpp>
 #include <boost/chrono/chrono.hpp>
 
@@ -39,7 +39,7 @@ private:
     boost::chrono::milliseconds m_NormalLimit;
     boost::chrono::milliseconds m_AbsoluteLimit;
     boost::mutex m_BeatMutex;
-    boost::interprocess::mapped_region m_Region;
+    SharedMemory m_SharedMemory;
 };
 
 
