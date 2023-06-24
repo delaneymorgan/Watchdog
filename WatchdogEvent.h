@@ -1,6 +1,10 @@
-//
-// Created by craig on 10/06/23.
-//
+/**
+ * @file WatchdogEvent.h
+ *
+ * @brief encapsulates information related to a watchdog event into a class
+ *
+ * @copyright Delaney & Morgan Computing
+ */
 
 #ifndef WATCHDOG_WATCHDOGEVENT_H
 #define WATCHDOG_WATCHDOGEVENT_H

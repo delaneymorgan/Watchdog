@@ -45,7 +45,10 @@ Watchdog::~Watchdog() {
  * @param event the watchdog event
  */
 void Watchdog::doCallbacks(const WatchdogEvent &event) {
-    m_CallBack(event, m_Verbose);
+    if (!m_CallBack.empty())
+    {
+        m_CallBack(event, m_Verbose);
+    }
     std::map<std::string, boost::shared_ptr<IWatchdogPolicy> >::iterator policy = m_Policies.find(event.processName());
     if (policy != m_Policies.end()) {
         (*policy).second->handleEvent(event, m_Verbose);
