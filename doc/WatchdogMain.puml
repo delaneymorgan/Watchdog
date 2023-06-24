@@ -81,10 +81,20 @@ class Heartbeat {
 +utin32)t calcCRC( heartbeat)
 +TTickCount tickCountNow()
 }
+
+class SharedMemory {
+-mapped_region m_Region
++SharedMemory( name)
++read( dest, numBytes)
++remove( name)
+}
+
 WatchdogMain "1" *-- "1" Watchdog
 Watchdog "1" *-- "n" EKG
 Watchdog "1" *-- "n" WatchdogEvent
+Watchdog "1" *-- "1" SharedMemory
 EKG "1" *-- "1" Heartbeat
+EKG "1" *-- "1" SharedMemory
 IWatchdogPolicy *-- WatchdogEvent
 ThreadyMainWatchdogPolicy *-- WatchdogEvent
 IWatchdogPolicy <|-- ThreadyMainWatchdogPolicy

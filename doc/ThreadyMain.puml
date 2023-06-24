@@ -28,6 +28,13 @@ class PaceMaker {
 +PaceMaker( processName, threadName, normalLimit, absoluteLimit)
 +void pulse()
 }
+
+class SharedMemory {
+-mapped_region m_Region
++SharedMemory( name, numBytes)
++write( dest, numBytes)
+}
+
 class Heartbeat {
 +milliseconds m_NormalLimit
 +milliseconds m_AbsoluteLimit
@@ -48,4 +55,5 @@ class Heartbeat {
 ThreadyMain "1" *-- "n" Thready
 Thready "1" *-- "1" PaceMaker
 PaceMaker "1" *-- "1" Heartbeat
+PaceMaker "1" *-- "1" SharedMemory
 @enduml
