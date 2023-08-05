@@ -20,8 +20,8 @@ using namespace boost::interprocess;
 
 EKG::EKG(const std::string &actualName) :
         m_ActualName(actualName),
-        m_ProcessID(getpid()),
-        m_ThreadID(gettid()),
+        m_ProcessID(Heartbeat::extractProcessID(actualName)),
+        m_ThreadID(Heartbeat::extractThreadID(actualName)),
         m_SharedMemory(m_ActualName) {
 }
 
