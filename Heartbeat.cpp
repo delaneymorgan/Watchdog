@@ -17,6 +17,7 @@
 #include <map>
 #include <sstream>
 #include <ctime>
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <vector>
 
@@ -45,7 +46,7 @@ bool Heartbeat::isCRCOK(const Heartbeat &heartbeat) {
 std::string Heartbeat::makeActualName(const std::string &processName, const std::string &threadName) {
     std::stringstream oss;
     pid_t processID = getpid();
-    pid_t threadID = gettid();
+    pid_t threadID = GetThreadID();
     oss << HEARTBEAT_PREFIX << processName << ":" << threadName << "." << processID << "." << threadID;
     return oss.str();
 }
@@ -119,4 +120,16 @@ TTickCount Heartbeat::tickCountNow() {
     TTickCount tick = now.tv_nsec / 1000000;
     tick += now.tv_sec * 1000;
     return tick;
+}
+
+/**
+ * returns the calling thread's ID
+ *
+ * NOTE: in later versions of linux, gettid() is available, but we have to support Ubuntu 12.
+ *
+ * @return the pid of the calling thread
+ */
+pid_t Heartbeat::GetThreadID() {
+    pid_t ret = syscall( SYS_gettid );
+    return ret;
 }

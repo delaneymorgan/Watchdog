@@ -24,7 +24,8 @@ target_link_libraries(WatchdogMain
         ${Boost_CHRONO_LIBRARY}
         ${Boost_THREAD_LIBRARY}
         ${Boost_REGEX_LIBRARY}
-        ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        ${Boost_PROGRAM_OPTIONS_LIBRARY}
+        rt)
 
 add_executable(ThreadyMain
         ThreadyMain.cpp
@@ -41,5 +42,6 @@ target_link_libraries(ThreadyMain
         ${Boost_CHRONO_LIBRARY}
         ${Boost_THREAD_LIBRARY}
         ${Boost_REGEX_LIBRARY}
-        ${Boost_PROGRAM_OPTIONS_LIBRARY})
+        ${Boost_PROGRAM_OPTIONS_LIBRARY}
+        rt)
 

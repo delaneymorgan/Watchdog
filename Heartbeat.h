@@ -50,6 +50,7 @@ struct Heartbeat {
     static uint32_t calcCRC(const Heartbeat &heartbeat);
     static TTickCount tickCountNow();
     static std::string heartbeatEventName(HeartbeatEvent event);
+    static pid_t GetThreadID();
 };
 
 
