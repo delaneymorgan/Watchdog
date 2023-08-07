@@ -49,8 +49,9 @@ void ThreadyMainWatchdogPolicy::handleEvent(const WatchdogEvent &event, bool ver
                           event.threadID() << " (" << threadyStateName(ThreadyState(event.info())) << ") = " <<
                           event.hbLength().count() << " mSec" << std::endl;
             }
-            // here we can choose to vary process' priority with rnice
+            // here we can choose to vary process' priority with getPriority/setPriority
             // or kill it and make it restart
+            // or even reboot the OS
             break;
 
         case Hung_HeartbeatEvent:
